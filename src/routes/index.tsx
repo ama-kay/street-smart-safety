@@ -1,26 +1,41 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { MobileShell } from "@/components/MobileShell";
+import { ShieldLogo } from "@/components/ShieldLogo";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Street Smart — Personal Emergency Safety" },
+      { name: "description", content: "Triple-tap your phone to instantly alert your emergency contacts." },
+    ],
+  }),
+  component: Welcome,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+// Welcome screen — first impression, brand & primary CTA
+function Welcome() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <MobileShell>
+      <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+        <ShieldLogo size={96} />
+        <h1 className="mt-8 text-4xl font-bold tracking-tight">Street Smart</h1>
+        <p className="mt-4 text-muted-foreground text-lg leading-relaxed max-w-xs">
+          Your personal emergency safety system.
+        </p>
+      </div>
+      <div className="px-6 pb-10 space-y-6">
+        <Link
+          to="/how-it-works"
+          className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform"
+        >
+          Get Started
+        </Link>
+        <div className="flex justify-center gap-2">
+          <span className="w-6 h-1.5 rounded-full bg-primary" />
+          <span className="w-1.5 h-1.5 rounded-full bg-border" />
+          <span className="w-1.5 h-1.5 rounded-full bg-border" />
+        </div>
+      </div>
+    </MobileShell>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
