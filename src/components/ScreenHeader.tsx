@@ -13,8 +13,8 @@ export function ScreenHeader({
 }) {
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2">
-      <Link
-        to={back}
+      <a
+        href={back}
         className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
         aria-label="Back"
       >
