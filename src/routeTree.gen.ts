@@ -9,38 +9,267 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TriggerRouteImport } from './routes/trigger'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ShortcutSetupRouteImport } from './routes/shortcut-setup'
+import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProfileEditRouteImport } from './routes/profile.edit'
+import { Route as ContactsAddRouteImport } from './routes/contacts.add'
 
+const TriggerRoute = TriggerRouteImport.update({
+  id: '/trigger',
+  path: '/trigger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShortcutSetupRoute = ShortcutSetupRouteImport.update({
+  id: '/shortcut-setup',
+  path: '/shortcut-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsRoute = ContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/profile/edit',
+  path: '/profile/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactsAddRoute = ContactsAddRouteImport.update({
+  id: '/add',
+  path: '/add',
+  getParentRoute: () => ContactsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contacts': typeof ContactsRouteWithChildren
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/shortcut-setup': typeof ShortcutSetupRoute
+  '/signup': typeof SignupRoute
+  '/trigger': typeof TriggerRoute
+  '/contacts/add': typeof ContactsAddRoute
+  '/profile/edit': typeof ProfileEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contacts': typeof ContactsRouteWithChildren
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/shortcut-setup': typeof ShortcutSetupRoute
+  '/signup': typeof SignupRoute
+  '/trigger': typeof TriggerRoute
+  '/contacts/add': typeof ContactsAddRoute
+  '/profile/edit': typeof ProfileEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contacts': typeof ContactsRouteWithChildren
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
+  '/setup': typeof SetupRoute
+  '/shortcut-setup': typeof ShortcutSetupRoute
+  '/signup': typeof SignupRoute
+  '/trigger': typeof TriggerRoute
+  '/contacts/add': typeof ContactsAddRoute
+  '/profile/edit': typeof ProfileEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/contacts'
+    | '/history'
+    | '/home'
+    | '/how-it-works'
+    | '/login'
+    | '/settings'
+    | '/setup'
+    | '/shortcut-setup'
+    | '/signup'
+    | '/trigger'
+    | '/contacts/add'
+    | '/profile/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/contacts'
+    | '/history'
+    | '/home'
+    | '/how-it-works'
+    | '/login'
+    | '/settings'
+    | '/setup'
+    | '/shortcut-setup'
+    | '/signup'
+    | '/trigger'
+    | '/contacts/add'
+    | '/profile/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/contacts'
+    | '/history'
+    | '/home'
+    | '/how-it-works'
+    | '/login'
+    | '/settings'
+    | '/setup'
+    | '/shortcut-setup'
+    | '/signup'
+    | '/trigger'
+    | '/contacts/add'
+    | '/profile/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactsRoute: typeof ContactsRouteWithChildren
+  HistoryRoute: typeof HistoryRoute
+  HomeRoute: typeof HomeRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
+  SettingsRoute: typeof SettingsRoute
+  SetupRoute: typeof SetupRoute
+  ShortcutSetupRoute: typeof ShortcutSetupRoute
+  SignupRoute: typeof SignupRoute
+  TriggerRoute: typeof TriggerRoute
+  ProfileEditRoute: typeof ProfileEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trigger': {
+      id: '/trigger'
+      path: '/trigger'
+      fullPath: '/trigger'
+      preLoaderRoute: typeof TriggerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shortcut-setup': {
+      id: '/shortcut-setup'
+      path: '/shortcut-setup'
+      fullPath: '/shortcut-setup'
+      preLoaderRoute: typeof ShortcutSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacts': {
+      id: '/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof ContactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +277,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/edit': {
+      id: '/profile/edit'
+      path: '/profile/edit'
+      fullPath: '/profile/edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacts/add': {
+      id: '/contacts/add'
+      path: '/add'
+      fullPath: '/contacts/add'
+      preLoaderRoute: typeof ContactsAddRouteImport
+      parentRoute: typeof ContactsRoute
+    }
   }
 }
 
+interface ContactsRouteChildren {
+  ContactsAddRoute: typeof ContactsAddRoute
+}
+
+const ContactsRouteChildren: ContactsRouteChildren = {
+  ContactsAddRoute: ContactsAddRoute,
+}
+
+const ContactsRouteWithChildren = ContactsRoute._addFileChildren(
+  ContactsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactsRoute: ContactsRouteWithChildren,
+  HistoryRoute: HistoryRoute,
+  HomeRoute: HomeRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
+  SettingsRoute: SettingsRoute,
+  SetupRoute: SetupRoute,
+  ShortcutSetupRoute: ShortcutSetupRoute,
+  SignupRoute: SignupRoute,
+  TriggerRoute: TriggerRoute,
+  ProfileEditRoute: ProfileEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
