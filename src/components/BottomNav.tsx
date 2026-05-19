@@ -4,13 +4,13 @@ import { Home, Users, Settings, User, AlertTriangle } from "lucide-react";
 // Persistent bottom tab bar used across the authenticated app screens.
 export function BottomNav() {
   const { pathname } = useLocation();
-  const items = [
+  const items: Array<{ to: string; icon: typeof Home; label: string; center?: boolean }> = [
     { to: "/home", icon: Home, label: "Home" },
     { to: "/contacts", icon: Users, label: "Contacts" },
     { to: "/trigger", icon: AlertTriangle, label: "SOS", center: true },
     { to: "/settings", icon: Settings, label: "Settings" },
     { to: "/profile/edit", icon: User, label: "Profile" },
-  ] as const;
+  ];
 
   return (
     <nav className="sticky bottom-0 left-0 right-0 bg-card border-t border-border px-2 py-2 flex items-end justify-between">
