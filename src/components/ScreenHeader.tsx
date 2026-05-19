@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+
 import { ChevronLeft } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -19,7 +19,7 @@ export function ScreenHeader({
         aria-label="Back"
       >
         <ChevronLeft className="w-5 h-5" />
-      </Link>
+      </a>
       <h1 className="text-base font-semibold flex-1 text-center pr-9">{title}</h1>
       {right}
     </header>
