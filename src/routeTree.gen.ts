@@ -21,7 +21,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
-import { Route as ContactsAddRouteImport } from './routes/contacts.add'
+import { Route as ContactsAddRouteImport } from './routes/contacts_.add'
 
 const TriggerRoute = TriggerRouteImport.update({
   id: '/trigger',
@@ -84,14 +84,14 @@ const ProfileEditRoute = ProfileEditRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactsAddRoute = ContactsAddRouteImport.update({
-  id: '/add',
-  path: '/add',
-  getParentRoute: () => ContactsRoute,
+  id: '/contacts_/add',
+  path: '/contacts/add',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/contacts': typeof ContactsRouteWithChildren
+  '/contacts': typeof ContactsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -106,7 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/contacts': typeof ContactsRouteWithChildren
+  '/contacts': typeof ContactsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -122,7 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/contacts': typeof ContactsRouteWithChildren
+  '/contacts': typeof ContactsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -132,7 +132,7 @@ export interface FileRoutesById {
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
   '/trigger': typeof TriggerRoute
-  '/contacts/add': typeof ContactsAddRoute
+  '/contacts_/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
 }
 export interface FileRouteTypes {
@@ -179,13 +179,13 @@ export interface FileRouteTypes {
     | '/shortcut-setup'
     | '/signup'
     | '/trigger'
-    | '/contacts/add'
+    | '/contacts_/add'
     | '/profile/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ContactsRoute: typeof ContactsRouteWithChildren
+  ContactsRoute: typeof ContactsRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -195,6 +195,7 @@ export interface RootRouteChildren {
   ShortcutSetupRoute: typeof ShortcutSetupRoute
   SignupRoute: typeof SignupRoute
   TriggerRoute: typeof TriggerRoute
+  ContactsAddRoute: typeof ContactsAddRoute
   ProfileEditRoute: typeof ProfileEditRoute
 }
 
@@ -284,31 +285,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileEditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contacts/add': {
-      id: '/contacts/add'
-      path: '/add'
+    '/contacts_/add': {
+      id: '/contacts_/add'
+      path: '/contacts/add'
       fullPath: '/contacts/add'
       preLoaderRoute: typeof ContactsAddRouteImport
-      parentRoute: typeof ContactsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface ContactsRouteChildren {
-  ContactsAddRoute: typeof ContactsAddRoute
-}
-
-const ContactsRouteChildren: ContactsRouteChildren = {
-  ContactsAddRoute: ContactsAddRoute,
-}
-
-const ContactsRouteWithChildren = ContactsRoute._addFileChildren(
-  ContactsRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ContactsRoute: ContactsRouteWithChildren,
+  ContactsRoute: ContactsRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
   HowItWorksRoute: HowItWorksRoute,
@@ -318,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShortcutSetupRoute: ShortcutSetupRoute,
   SignupRoute: SignupRoute,
   TriggerRoute: TriggerRoute,
+  ContactsAddRoute: ContactsAddRoute,
   ProfileEditRoute: ProfileEditRoute,
 }
 export const routeTree = rootRouteImport
