@@ -2,11 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { Camera } from "lucide-react";
+import { Country } from "country-state-city";
 
 export const Route = createFileRoute("/profile/edit")({
   component: EditProfile,
 });
 
+const countries = Country.getAllCountries()
+  .map((c) => c.name)
+  .sort((a, b) => a.localeCompare(b));
+  
 function EditProfile() {
   return (
     <MobileShell>
@@ -30,7 +35,7 @@ function EditProfile() {
             <Input label="Last Name" defaultValue="Doe" />
           </div>
           <Input label="Date of Birth" type="date" defaultValue="1995-04-12" />
-          <Select label="Country" options={["United States", "Canada", "United Kingdom", "Australia"]} />
+          <Select label="Country" options={countries} />
           <Select label="Gender" options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
           <Input label="Profession" defaultValue="Software Engineer" />
         </Section>
