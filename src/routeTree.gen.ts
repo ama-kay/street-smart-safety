@@ -19,9 +19,15 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ContactsRouteImport } from './routes/contacts'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ContactsAddRouteImport } from './routes/contacts_.add'
+import { Route as AdminUserManagementRouteImport } from './routes/admin.userManagement'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminLiveMonitoringRouteImport } from './routes/admin.liveMonitoring'
+import { Route as AdminEmergencyLogsRouteImport } from './routes/admin.emergencyLogs'
 
 const TriggerRoute = TriggerRouteImport.update({
   id: '/trigger',
@@ -73,10 +79,20 @@ const ContactsRoute = ContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/profile/edit',
@@ -88,9 +104,30 @@ const ContactsAddRoute = ContactsAddRouteImport.update({
   path: '/contacts/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUserManagementRoute = AdminUserManagementRouteImport.update({
+  id: '/userManagement',
+  path: '/userManagement',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLiveMonitoringRoute = AdminLiveMonitoringRouteImport.update({
+  id: '/liveMonitoring',
+  path: '/liveMonitoring',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEmergencyLogsRoute = AdminEmergencyLogsRouteImport.update({
+  id: '/emergencyLogs',
+  path: '/emergencyLogs',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contacts': typeof ContactsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
@@ -101,8 +138,13 @@ export interface FileRoutesByFullPath {
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
   '/trigger': typeof TriggerRoute
+  '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
+  '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/userManagement': typeof AdminUserManagementRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -116,12 +158,18 @@ export interface FileRoutesByTo {
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
   '/trigger': typeof TriggerRoute
+  '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
+  '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/userManagement': typeof AdminUserManagementRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contacts': typeof ContactsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
@@ -132,13 +180,19 @@ export interface FileRoutesById {
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
   '/trigger': typeof TriggerRoute
+  '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
+  '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/userManagement': typeof AdminUserManagementRoute
   '/contacts_/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/contacts'
     | '/history'
     | '/home'
@@ -149,8 +203,13 @@ export interface FileRouteTypes {
     | '/shortcut-setup'
     | '/signup'
     | '/trigger'
+    | '/admin/emergencyLogs'
+    | '/admin/liveMonitoring'
+    | '/admin/settings'
+    | '/admin/userManagement'
     | '/contacts/add'
     | '/profile/edit'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -164,11 +223,17 @@ export interface FileRouteTypes {
     | '/shortcut-setup'
     | '/signup'
     | '/trigger'
+    | '/admin/emergencyLogs'
+    | '/admin/liveMonitoring'
+    | '/admin/settings'
+    | '/admin/userManagement'
     | '/contacts/add'
     | '/profile/edit'
+    | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/contacts'
     | '/history'
     | '/home'
@@ -179,12 +244,18 @@ export interface FileRouteTypes {
     | '/shortcut-setup'
     | '/signup'
     | '/trigger'
+    | '/admin/emergencyLogs'
+    | '/admin/liveMonitoring'
+    | '/admin/settings'
+    | '/admin/userManagement'
     | '/contacts_/add'
     | '/profile/edit'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactsRoute: typeof ContactsRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
@@ -271,12 +342,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/profile/edit': {
       id: '/profile/edit'
@@ -292,11 +377,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/userManagement': {
+      id: '/admin/userManagement'
+      path: '/userManagement'
+      fullPath: '/admin/userManagement'
+      preLoaderRoute: typeof AdminUserManagementRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/liveMonitoring': {
+      id: '/admin/liveMonitoring'
+      path: '/liveMonitoring'
+      fullPath: '/admin/liveMonitoring'
+      preLoaderRoute: typeof AdminLiveMonitoringRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/emergencyLogs': {
+      id: '/admin/emergencyLogs'
+      path: '/emergencyLogs'
+      fullPath: '/admin/emergencyLogs'
+      preLoaderRoute: typeof AdminEmergencyLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminEmergencyLogsRoute: typeof AdminEmergencyLogsRoute
+  AdminLiveMonitoringRoute: typeof AdminLiveMonitoringRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUserManagementRoute: typeof AdminUserManagementRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminEmergencyLogsRoute: AdminEmergencyLogsRoute,
+  AdminLiveMonitoringRoute: AdminLiveMonitoringRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminUserManagementRoute: AdminUserManagementRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactsRoute: ContactsRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
