@@ -38,17 +38,32 @@ function Trigger() {
         <div className="flex-1 flex items-center justify-center">
           <div className="relative w-72 h-72">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 280 280">
-              <circle cx="140" cy="140" r={radius} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="10" />
               <circle
-                cx="140" cy="140" r={radius} fill="none"
-                stroke="white" strokeWidth="10" strokeLinecap="round"
-                strokeDasharray={circumference} strokeDashoffset={progress}
+                cx="140"
+                cy="140"
+                r={radius}
+                fill="none"
+                stroke="rgba(255,255,255,0.18)"
+                strokeWidth="10"
+              />
+              <circle
+                cx="140"
+                cy="140"
+                r={radius}
+                fill="none"
+                stroke="white"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={progress}
                 style={{ transition: "stroke-dashoffset 1s linear" }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-7xl font-bold tabular-nums">{seconds}</span>
-              <span className="text-sm uppercase tracking-widest text-primary-foreground/80 mt-1">seconds</span>
+              <span className="text-sm uppercase tracking-widest text-primary-foreground/80 mt-1">
+                seconds
+              </span>
             </div>
           </div>
         </div>

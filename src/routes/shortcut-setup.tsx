@@ -8,9 +8,19 @@ export const Route = createFileRoute("/shortcut-setup")({
 });
 
 const steps = [
-  { Icon: Settings, title: "Open Settings", desc: "Go to Settings → Accessibility → Touch", done: true },
+  {
+    Icon: Settings,
+    title: "Open Settings",
+    desc: "Go to Settings → Accessibility → Touch",
+    done: true,
+  },
   { Icon: Hand, title: "Enable Back Tap", desc: "Scroll down and select 'Back Tap'", done: true },
-  { Icon: Zap, title: "Assign Emergency Shortcut", desc: "Choose 'Triple Tap' → Street Smart", done: false },
+  {
+    Icon: Zap,
+    title: "Assign Emergency Shortcut",
+    desc: "Choose 'Triple Tap' → Street Smart",
+    done: false,
+  },
 ];
 
 // Walkthrough for OS-level triple-tap shortcut configuration
@@ -24,10 +34,15 @@ function ShortcutSetup() {
         </p>
         <div className="mt-6 space-y-3">
           {steps.map(({ Icon, title, desc, done }, i) => (
-            <div key={title} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4 shadow-card">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                done ? "bg-success/15 text-success" : "bg-primary/10 text-primary"
-              }`}>
+            <div
+              key={title}
+              className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4 shadow-card"
+            >
+              <div
+                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  done ? "bg-success/15 text-success" : "bg-primary/10 text-primary"
+                }`}
+              >
                 <Icon className="w-5 h-5" />
               </div>
               <div className="flex-1">

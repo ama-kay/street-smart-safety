@@ -23,7 +23,10 @@ function HowItWorks() {
         </p>
         <div className="mt-10 space-y-4">
           {steps.map(({ Icon, title, desc }, i) => (
-            <div key={title} className="bg-card border border-border rounded-2xl p-5 flex items-start gap-4 shadow-card">
+            <div
+              key={title}
+              className="bg-card border border-border rounded-2xl p-5 flex items-start gap-4 shadow-card"
+            >
               <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                 <Icon className="w-6 h-6" />
               </div>

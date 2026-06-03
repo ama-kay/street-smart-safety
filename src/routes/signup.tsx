@@ -30,14 +30,19 @@ function Signup() {
         </form>
         <p className="text-center text-sm text-muted-foreground mt-8">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-semibold">Login</Link>
+          <Link to="/login" className="text-primary font-semibold">
+            Login
+          </Link>
         </p>
       </div>
     </MobileShell>
   );
 }
 
-function Field({ icon: Icon, ...props }: { icon: typeof User } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({
+  icon: Icon,
+  ...props
+}: { icon: typeof User } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
       <Icon className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />

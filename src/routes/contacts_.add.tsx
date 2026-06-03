@@ -13,9 +13,13 @@ function AddContact() {
   return (
     <MobileShell>
       <ScreenHeader title="Add Contact" back="/contacts" />
-{/*       <ContactsShell>
- */}      <form
-        onSubmit={(e) => { e.preventDefault(); navigate({ to: "/contacts" }); }}
+      {/*       <ContactsShell>
+       */}{" "}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          navigate({ to: "/contacts" });
+        }}
         className="flex-1 px-6 pt-6 pb-6 flex flex-col"
       >
         <div className="space-y-4 flex-1">
@@ -26,7 +30,9 @@ function AddContact() {
               className="w-full appearance-none bg-secondary border border-transparent focus:border-primary focus:bg-background rounded-xl px-4 py-4 text-sm outline-none"
               defaultValue=""
             >
-              <option value="" disabled>Select Relationship</option>
+              <option value="" disabled>
+                Select Relationship
+              </option>
               <option>Family</option>
               <option>Friend</option>
               <option>Partner</option>
@@ -43,12 +49,16 @@ function AddContact() {
           Save Contact
         </button>
       </form>
-{/*       </ContactsShell>
- */}    </MobileShell>
+      {/*       </ContactsShell>
+       */}{" "}
+    </MobileShell>
   );
 }
 
-function Field({ icon: Icon, ...props }: { icon: typeof User } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({
+  icon: Icon,
+  ...props
+}: { icon: typeof User } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
       <Icon className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />

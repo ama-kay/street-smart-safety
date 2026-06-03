@@ -11,7 +11,7 @@ export const Route = createFileRoute("/profile/edit")({
 const countries = Country.getAllCountries()
   .map((c) => c.name)
   .sort((a, b) => a.localeCompare(b));
-  
+
 function EditProfile() {
   return (
     <MobileShell>
@@ -68,13 +68,18 @@ function EditProfile() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-8">
-      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">{title}</h2>
+      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+        {title}
+      </h2>
       <div className="space-y-3">{children}</div>
     </div>
   );
 }
 
-function Input({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Input({
+  label,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className="block">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
@@ -94,8 +99,12 @@ function Select({ label, options }: { label: string; options: string[] }) {
         defaultValue=""
         className="mt-1 w-full bg-secondary border border-transparent focus:border-primary focus:bg-background rounded-xl px-4 py-3 text-sm outline-none transition-colors appearance-none"
       >
-        <option value="" disabled>Select…</option>
-        {options.map((o) => <option key={o}>{o}</option>)}
+        <option value="" disabled>
+          Select…
+        </option>
+        {options.map((o) => (
+          <option key={o}>{o}</option>
+        ))}
       </select>
     </label>
   );

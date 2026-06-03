@@ -24,7 +24,9 @@ function Login() {
           <Field icon={Mail} type="email" placeholder="Email or phone" />
           <Field icon={Lock} type="password" placeholder="Password" />
           <div className="text-right">
-            <a href="#" className="text-sm text-primary font-medium">Forgot password?</a>
+            <a href="#" className="text-sm text-primary font-medium">
+              Forgot password?
+            </a>
           </div>
           <Link
             to="/setup"
@@ -36,14 +38,19 @@ function Login() {
 
         <p className="text-center text-sm text-muted-foreground mt-8">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-semibold">Sign up</Link>
+          <Link to="/signup" className="text-primary font-semibold">
+            Sign up
+          </Link>
         </p>
       </div>
     </MobileShell>
   );
 }
 
-function Field({ icon: Icon, ...props }: { icon: typeof Mail } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({
+  icon: Icon,
+  ...props
+}: { icon: typeof Mail } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
       <Icon className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />

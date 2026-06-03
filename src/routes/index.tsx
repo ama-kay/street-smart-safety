@@ -6,7 +6,10 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Street Smart — Personal Emergency Safety" },
-      { name: "description", content: "Triple-tap your phone to instantly alert your emergency contacts." },
+      {
+        name: "description",
+        content: "Triple-tap your phone to instantly alert your emergency contacts.",
+      },
     ],
   }),
   component: Welcome,

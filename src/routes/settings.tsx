@@ -21,7 +21,9 @@ function Settings() {
             <h3 className="font-semibold">John Doe</h3>
             <p className="text-xs text-muted-foreground">john.doe@example.com</p>
           </div>
-          <Link to="/profile/edit" className="text-primary text-sm font-semibold">Edit</Link>
+          <Link to="/profile/edit" className="text-primary text-sm font-semibold">
+            Edit
+          </Link>
         </div>
 
         <div className="mt-6 bg-card border border-border rounded-2xl shadow-card overflow-hidden">
@@ -43,8 +45,16 @@ function Settings() {
 }
 
 function Row({
-  icon: Icon, label, to, last,
-}: { icon: typeof User; label: string; to?: "/profile/edit" | "/contacts"; last?: boolean }) {
+  icon: Icon,
+  label,
+  to,
+  last,
+}: {
+  icon: typeof User;
+  label: string;
+  to?: "/profile/edit" | "/contacts";
+  last?: boolean;
+}) {
   const inner = (
     <div className={`flex items-center gap-4 px-4 py-4 ${!last ? "border-b border-border" : ""}`}>
       <div className="w-9 h-9 rounded-lg bg-secondary text-foreground flex items-center justify-center">
