@@ -17,7 +17,9 @@ function Home() {
           <h1 className="text-2xl font-bold">John</h1>
         </div>
         <button className="w-11 h-11 rounded-full bg-card border border-border flex items-center justify-center">
-          <Bell className="w-5 h-5" />
+          <a href="/notifications">
+            <Bell className="w-5 h-5" />
+          </a>
         </button>
       </header>
 
@@ -35,7 +37,7 @@ function Home() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground -mt-2 mb-6">
-          Press and hold or triple-tap your phone
+          Press or triple-tap the back of your phone
         </p>
 
         <div className="grid grid-cols-2 gap-3">
