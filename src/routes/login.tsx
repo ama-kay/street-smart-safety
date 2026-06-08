@@ -24,7 +24,7 @@ function Login() {
           <Field icon={Mail} type="email" placeholder="Email or phone" />
           <Field icon={Lock} type="password" placeholder="Password" />
           <div className="text-right">
-            <a href="#" className="text-sm text-primary font-medium">
+            <a href="./forgot-password" className="text-sm text-primary font-medium">
               Forgot password?
             </a>
           </div>
