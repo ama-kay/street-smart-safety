@@ -20,9 +20,9 @@ function Setup() {
         </p>
       </div>
       <div className="px-6 pb-10 space-y-3">
-        <button className="block w-full bg-success text-success-foreground font-semibold rounded-2xl py-4 active:scale-[0.98] transition-transform">
+        {/*  <button className="block w-full bg-success text-success-foreground font-semibold rounded-2xl py-4 active:scale-[0.98] transition-transform">
           Mark as Done
-        </button>
+        </button> */}
         <Link
           to="/shortcut-setup"
           className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform"

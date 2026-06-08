@@ -33,11 +33,6 @@ function Welcome() {
         >
           Get Started
         </Link>
-        <div className="flex justify-center gap-2">
-          <span className="w-6 h-1.5 rounded-full bg-primary" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
-          <span className="w-1.5 h-1.5 rounded-full bg-border" />
-        </div>
       </div>
     </MobileShell>
   );

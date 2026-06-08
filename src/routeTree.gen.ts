@@ -14,10 +14,14 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShortcutSetupRouteImport } from './routes/shortcut-setup'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -54,6 +58,16 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -72,6 +86,16 @@ const HomeRoute = HomeRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactsRoute = ContactsRouteImport.update({
@@ -129,10 +153,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/contacts': typeof ContactsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
@@ -149,10 +177,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contacts': typeof ContactsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
@@ -171,10 +203,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/contacts': typeof ContactsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
@@ -194,10 +230,14 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contacts'
+    | '/forgot-password'
+    | '/help'
     | '/history'
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/notifications'
+    | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
@@ -214,10 +254,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contacts'
+    | '/forgot-password'
+    | '/help'
     | '/history'
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/notifications'
+    | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
@@ -235,10 +279,14 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contacts'
+    | '/forgot-password'
+    | '/help'
     | '/history'
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/notifications'
+    | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
@@ -257,10 +305,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   ContactsRoute: typeof ContactsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HelpRoute: typeof HelpRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LoginRoute: typeof LoginRoute
+  NotificationsRoute: typeof NotificationsRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   ShortcutSetupRoute: typeof ShortcutSetupRoute
@@ -307,6 +359,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -333,6 +399,20 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contacts': {
@@ -430,10 +510,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ContactsRoute: ContactsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  HelpRoute: HelpRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
   HowItWorksRoute: HowItWorksRoute,
   LoginRoute: LoginRoute,
+  NotificationsRoute: NotificationsRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   ShortcutSetupRoute: ShortcutSetupRoute,

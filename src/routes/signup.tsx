@@ -21,9 +21,11 @@ function Signup() {
           <Field icon={Phone} type="tel" placeholder="Phone Number" />
           <Field icon={Mail} type="email" placeholder="Email (optional)" />
           <Field icon={Lock} type="password" placeholder="Password" />
+          <Field icon={Lock} type="password" placeholder="Confirm Password" />
+
           <Link
             to="/setup"
-            className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform mt-2"
+            className="mt-10 block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform mt-2"
           >
             Create Account
           </Link>
