@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Street Smart Safety</string>
+    <string name="title_activity_main">Street Smart Safety</string>
+    <string name="package_name">com.streetsmart.safety</string>
+    <string name="custom_url_scheme">com.streetsmart.safety</string>
+</resources>
