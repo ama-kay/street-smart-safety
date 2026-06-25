@@ -11,14 +11,14 @@ const events = [
   {
     date: "Oct 12, 2025",
     time: "9:42 PM",
-    status: "Delivered",
+    status: "Pending",
     location: "Downtown, Main St",
-    ok: true,
+    ok: false,
   },
   {
     date: "Sep 28, 2025",
     time: "11:15 PM",
-    status: "Delivered",
+    status: "Resolved",
     location: "Park Avenue",
     ok: true,
   },
