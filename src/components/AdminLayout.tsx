@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "@tanstack/react-router";
+import { ShieldLogo } from "@/components/ShieldLogo";
 import {
   LayoutDashboard,
   Radio,
@@ -29,8 +30,8 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
       {/* Sidebar */}
       <aside className="w-60 bg-card border-r border-border flex flex-col fixed h-full z-40">
         <div className="flex items-center gap-2.5 px-6 py-5 border-b border-border">
-          <div className="w-8 h-8 rounded-lg bg-emergency flex items-center justify-center">
-            <Shield className="h-4 w-4 text-emergency-foreground" />
+          <div className="rounded flex items-center justify-center">
+            <ShieldLogo size={40} />
           </div>
           <span className="font-bold text-foreground">Street Smart</span>
         </div>

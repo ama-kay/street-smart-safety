@@ -18,7 +18,7 @@ const emergencies = [
     phone: "+1 555-0202",
     time: "Mar 14, 3:38 PM",
     location: "Oak Street Mall",
-    status: "Alert Sent",
+    status: "Sent",
   },
   {
     user: "James Lee",
@@ -45,7 +45,7 @@ const emergencies = [
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning-soft text-warning",
-  "Alert Sent": "bg-emergency-soft text-emergency",
+  Sent: "bg-emergency-soft text-emergency",
   Resolved: "bg-safe-soft text-safe",
   Cancelled: "bg-muted text-muted-foreground",
 };

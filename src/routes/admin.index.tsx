@@ -38,15 +38,15 @@ const stats = [
 
 const recentAlerts = [
   { user: "John Doe", time: "2 min ago", status: "Pending", location: "Downtown" },
-  { user: "Jane Smith", time: "15 min ago", status: "Alert Sent", location: "West Side" },
+  { user: "Jane Smith", time: "15 min ago", status: "Sent", location: "West Side" },
   { user: "Bob Wilson", time: "1 hr ago", status: "Resolved", location: "Central" },
   { user: "Alice Brown", time: "2 hrs ago", status: "Cancelled", location: "East End" },
-  { user: "Tom Davis", time: "3 hrs ago", status: "Alert Sent", location: "North District" },
+  { user: "Tom Davis", time: "3 hrs ago", status: "Sent", location: "North District" },
 ];
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning-soft text-warning",
-  "Alert Sent": "bg-emergency-soft text-emergency",
+  Sent: "bg-emergency-soft text-emergency",
   Resolved: "bg-safe-soft text-safe",
   Cancelled: "bg-muted text-muted-foreground",
 };
@@ -68,17 +68,17 @@ export default function AdminDashboard() {
             <div key={stat.label} className="bg-card rounded-lg border border-border p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
-                <div className={`w-9 h-9 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                {/*   <div className={`w-9 h-9 rounded-lg ${stat.bg} flex items-center justify-center`}>
                   <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
+                </div> */}
               </div>
               <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              {stat.change && (
+              {/* {stat.change && (
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingUp className="h-3 w-3 text-safe" />
                   <span className="text-xs text-safe font-medium">{stat.change}</span>
                 </div>
-              )}
+              )} */}
             </div>
           ))}
         </div>
