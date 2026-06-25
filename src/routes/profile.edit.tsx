@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { Camera } from "lucide-react";
@@ -12,13 +13,17 @@ const countries = Country.getAllCountries()
   .map((c) => c.name)
   .sort((a, b) => a.localeCompare(b));
 
+const currentYear = new Date().getFullYear();
+
 function EditProfile() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <MobileShell>
       <ScreenHeader title="Edit Profile" back="/settings" />
       <div className="flex-1 px-6 pt-6 pb-6 overflow-y-auto">
         {/* Photo */}
-        <div className="flex justify-center">
+        {/*  <div className="flex justify-center">
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-secondary border-4 border-card shadow-card flex items-center justify-center text-2xl font-bold text-muted-foreground">
               JD
@@ -27,14 +32,60 @@ function EditProfile() {
               <Camera className="w-4 h-4" />
             </button>
           </div>
+        </div> */}
+        {/* Photo */}
+        <div className="flex justify-center">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full bg-secondary border-4 border-card shadow-card flex items-center justify-center text-2xl font-bold text-muted-foreground">
+              JD
+            </div>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-emergency"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {menuOpen && (
+              <div className="absolute bottom--12 left-20 bg-gray-100 border rounded shadow-md w-35 z-10">
+                <button
+                  className="block w-full text-xs text-left px-2 py-1 hover:bg-gray-200"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    // TODO: implement camera capture
+                    console.log("Take a Photo clicked");
+                  }}
+                >
+                  Take a Photo
+                </button>
+                <button
+                  className="block w-full text-xs text-left px-2 py-1 hover:bg-gray-200"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    // TODO: implement file picker
+                    console.log("Choose Photo clicked");
+                  }}
+                >
+                  Choose/Change Photo
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <Section title="Personal Details">
           <div className="grid grid-cols-2 gap-3">
-            <Input label="First Name" defaultValue="John" />
-            <Input label="Last Name" defaultValue="Doe" />
+            <Input label="First Name" placeholder="John" />
+            <Input label="Last Name" placeholder="Doe" />
           </div>
-          <Input label="Date of Birth" type="date" defaultValue="1995-04-12" />
+          <Input
+            label="Date of Birth"
+            type="date"
+            placeholder="1995-04-12"
+            min="1900-01-01"
+            max={`${currentYear}-12-31`}
+          />
           <Select label="Country" options={countries} />
           <Select label="Gender" options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
           <Input label="Profession" defaultValue="Software Engineer" />
@@ -47,8 +98,8 @@ function EditProfile() {
         </Section>
 
         <Section title="Contact Information">
-          <Input label="Phone" type="tel" defaultValue="+1 (555) 123-4567" />
-          <Input label="Email" type="email" defaultValue="john.doe@example.com" />
+          <Input label="Phone" type="tel" placeholder="+1 (555) 123-4567" />
+          <Input label="Email" type="email" placeholder="john.doe@example.com" />
           <Input label="Address" placeholder="Street, City, ZIP" />
         </Section>
 
@@ -57,7 +108,9 @@ function EditProfile() {
             Reset
           </button>
           <button className="bg-primary text-primary-foreground font-semibold rounded-2xl py-4 shadow-emergency active:scale-[0.98] transition-transform">
-            Save
+            <a href="/settings" className="block w-full text-center">
+              Save
+            </a>
           </button>
         </div>
       </div>
