@@ -23,9 +23,6 @@ function Settings() {
             <h3 className="font-semibold">John Doe</h3>
             <p className="text-xs text-muted-foreground">john.doe@example.com</p>
           </div>
-          <Link to="/profile/edit" className="text-primary text-sm font-semibold">
-            Edit
-          </Link>
         </div>
 
         {/* Menu */}
@@ -40,8 +37,10 @@ function Settings() {
 
         {/* Logout */}
         <button className="mt-6 w-full text-primary font-semibold py-4 flex items-center justify-center gap-2">
-          <LogOut className="w-4 h-4" />
-          Log Out
+          <a href="/login" className="flex items-center gap-2">
+            <LogOut className="w-4 h-4" />
+            Log Out
+          </a>
         </button>
       </div>
 
