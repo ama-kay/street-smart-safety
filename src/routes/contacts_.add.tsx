@@ -12,7 +12,8 @@ function AddContact() {
   return (
     <MobileShell>
       <ScreenHeader title="Add Contact" back="/contacts" />
-       */}{" "}
+
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -47,7 +48,7 @@ function AddContact() {
           Save Contact
         </button>
       </form>
-       */}{" "}
+       
     </MobileShell>
   );
 }
