@@ -1,14 +1,60 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { User, Phone, Mail, Lock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/signup")({
   component: Signup,
 });
 
-// Account creation
 function Signup() {
+  const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    const [first_name, ...rest] = fullName.trim().split(" ");
+    const last_name = rest.join(" ");
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/home`,
+        data: { first_name, last_name, phone },
+      },
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    // Best-effort: create/update profile row if session exists immediately
+    if (data.user) {
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        first_name: first_name || null,
+        last_name: last_name || null,
+        phone: phone || null,
+        email,
+      });
+    }
+    navigate({ to: data.session ? "/setup" : "/login" });
+  }
+
   return (
     <MobileShell>
       <ScreenHeader title="Create Account" back="/login" />
@@ -16,19 +62,55 @@ function Signup() {
         <p className="text-muted-foreground text-sm">
           Set up your profile to start protecting yourself.
         </p>
-        <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <Field icon={User} placeholder="Full Name" />
-          <Field icon={Phone} type="tel" placeholder="Phone Number" />
-          <Field icon={Mail} type="email" placeholder="Email (optional)" />
-          <Field icon={Lock} type="password" placeholder="Password" />
-          <Field icon={Lock} type="password" placeholder="Confirm Password" />
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          <Field
+            icon={User}
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+          <Field
+            icon={Phone}
+            type="tel"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Field
+            icon={Mail}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Field
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Field
+            icon={Lock}
+            type="password"
+            placeholder="Confirm Password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
 
-          <Link
-            to="/setup"
-            className="mt-10 block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform mt-2"
+          {error && <p className="text-sm text-primary">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-10 block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform disabled:opacity-60"
           >
-            Create Account
-          </Link>
+            {loading ? "Creating account…" : "Create Account"}
+          </button>
         </form>
         <p className="text-center text-sm text-muted-foreground mt-8">
           Already have an account?{" "}
