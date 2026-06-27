@@ -3,7 +3,6 @@ import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { Phone, Plus } from "lucide-react";
-import { ContactsShell } from "@/components/ContactsShell";
 
 export const Route = createFileRoute("/contacts")({
   component: Contacts,
@@ -35,7 +34,6 @@ function Contacts() {
     <MobileShell>
       <ScreenHeader title="Emergency Contacts" />
       <div className="flex-1 px-6 pt-6 pb-4 overflow-y-auto">
-        {/*         <ContactsShell>
          */}{" "}
         <p className="text-sm text-muted-foreground mb-4">
           These contacts will be notified when an emergency is triggered.
@@ -75,7 +73,6 @@ function Contacts() {
           Add Contact
         </Link>
       </div>
-      {/*       </ContactsShell>
        */}{" "}
       <BottomNav />
     </MobileShell>

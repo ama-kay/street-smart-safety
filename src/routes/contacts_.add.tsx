@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { User, Phone, ChevronDown } from "lucide-react";
-import { ContactsShell } from "@/components/ContactsShell";
 
 export const Route = createFileRoute("/contacts_/add")({
   component: AddContact,
@@ -13,7 +12,6 @@ function AddContact() {
   return (
     <MobileShell>
       <ScreenHeader title="Add Contact" back="/contacts" />
-      {/*       <ContactsShell>
        */}{" "}
       <form
         onSubmit={(e) => {
@@ -49,7 +47,6 @@ function AddContact() {
           Save Contact
         </button>
       </form>
-      {/*       </ContactsShell>
        */}{" "}
     </MobileShell>
   );
