@@ -1,14 +1,50 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { User, Users, Bell, Lock, HelpCircle, ChevronRight, LogOut } from "lucide-react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/integrations/supabase/auth-context";
+import { supabase, type Profile } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/settings")({
-  component: Settings,
+  component: () => (
+    <RequireAuth>
+      <Settings />
+    </RequireAuth>
+  ),
 });
 
 function Settings() {
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<Partial<Profile> | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("first_name,last_name,email,profile_photo_url")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data));
+  }, [user]);
+
+  const name =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim() ||
+    user?.email ||
+    "Your Profile";
+  const email = profile?.email || user?.email || "";
+  const initials =
+    `${profile?.first_name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}`.toUpperCase() ||
+    (user?.email?.[0]?.toUpperCase() ?? "U");
+
+  async function handleLogout() {
+    await signOut();
+    navigate({ to: "/login" });
+  }
+
   return (
     <MobileShell>
       <ScreenHeader title="Settings" />
@@ -16,12 +52,20 @@ function Settings() {
       <div className="flex-1 px-6 pt-6 pb-4 overflow-y-auto">
         {/* Profile Card */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4 shadow-card">
-          <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-            JD
+          <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg overflow-hidden">
+            {profile?.profile_photo_url ? (
+              <img
+                src={profile.profile_photo_url}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              initials
+            )}
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold">John Doe</h3>
-            <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold truncate">{name}</h3>
+            <p className="text-xs text-muted-foreground truncate">{email}</p>
           </div>
         </div>
 
@@ -36,11 +80,12 @@ function Settings() {
         </div>
 
         {/* Logout */}
-        <button className="mt-6 w-full text-primary font-semibold py-4 flex items-center justify-center gap-2">
-          <a href="/login" className="flex items-center gap-2">
-            <LogOut className="w-4 h-4" />
-            Log Out
-          </a>
+        <button
+          onClick={handleLogout}
+          className="mt-6 w-full text-primary font-semibold py-4 flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Log Out
         </button>
       </div>
 
