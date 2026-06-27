@@ -34,7 +34,8 @@ function Contacts() {
     <MobileShell>
       <ScreenHeader title="Emergency Contacts" />
       <div className="flex-1 px-6 pt-6 pb-4 overflow-y-auto">
-         */}{" "}
+        {/* contacts list */}
+
         <p className="text-sm text-muted-foreground mb-4">
           These contacts will be notified when an emergency is triggered.
         </p>
@@ -73,7 +74,7 @@ function Contacts() {
           Add Contact
         </Link>
       </div>
-       */}{" "}
+       
       <BottomNav />
     </MobileShell>
   );
