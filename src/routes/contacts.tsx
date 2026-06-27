@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/RequireAuth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -5,7 +6,11 @@ import { BottomNav } from "@/components/BottomNav";
 import { Phone, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/contacts")({
-  component: Contacts,
+  component: () => (
+    <RequireAuth>
+      <Contacts />
+    </RequireAuth>
+  ),
 });
 
 const contacts = [
