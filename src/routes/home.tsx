@@ -1,15 +1,10 @@
-import { RequireAuth } from "@/components/RequireAuth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { BottomNav } from "@/components/BottomNav";
 import { Users, Clock, BookOpen, Settings as Cog, AlertTriangle, Bell } from "lucide-react";
 
 export const Route = createFileRoute("/home")({
-  component: () => (
-    <RequireAuth>
-      <Home />
-    </RequireAuth>
-  ),
+  component: Home,
 });
 
 // Main authenticated home / dashboard

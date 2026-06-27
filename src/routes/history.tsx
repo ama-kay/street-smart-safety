@@ -1,15 +1,10 @@
-import { RequireAuth } from "@/components/RequireAuth";
 import { createFileRoute } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { Check, Clock, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/history")({
-  component: () => (
-    <RequireAuth>
-      <History />
-    </RequireAuth>
-  ),
+  component: History,
 });
 
 const events = [

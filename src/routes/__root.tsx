@@ -7,10 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { AuthProvider } from "@/integrations/supabase/auth-context";
 
 import appCss from "../styles.css?url";
-
 
 function NotFoundComponent() {
   return (
@@ -115,10 +113,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <Outlet />
     </QueryClientProvider>
   );
 }
-

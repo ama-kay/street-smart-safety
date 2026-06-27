@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { RequireAuth } from "@/components/RequireAuth";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -15,11 +14,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/notifications")({
-  component: () => (
-    <RequireAuth>
-      <Notifications />
-    </RequireAuth>
-  ),
+  component: Notifications,
 });
 
 const notifications = [

@@ -1,67 +1,46 @@
+/* eslint-disable prettier/prettier */
 import { createFileRoute } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ShieldLogo } from "@/components/ShieldLogo";
 import { Mail } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/forgot-password")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!emailSent) return;
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setCanResend(true);
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [emailSent]);
 
-  async function sendReset() {
-    setError(null);
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+  const timer = setInterval(() => {
+    setCountdown((prev) => {
+      if (prev <= 1) {
+        setCanResend(true);
+        clearInterval(timer);
+        return 0;
+      }
+      return prev - 1;
     });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-      return false;
-    }
-    return true;
-  }
+  }, 1000);
 
-  async function handleSubmit(e: React.FormEvent) {
+  return () => clearInterval(timer);
+}, [emailSent]);
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const ok = await sendReset();
-    if (ok) {
-      setEmailSent(true);
-      setCountdown(60);
-      setCanResend(false);
-    }
+    setEmailSent(true);
+    setCountdown(60);
+    setCanResend(false);
   }
 
-  async function handleResend() {
-    const ok = await sendReset();
-    if (ok) {
-      setCountdown(60);
-      setCanResend(false);
-    }
+  function handleResend() {
+    setCountdown(60);
+    setCanResend(false);
   }
 
   return (
@@ -80,33 +59,27 @@ function RouteComponent() {
             </p>
 
             <form className="mt-10 space-y-4" onSubmit={handleSubmit}>
-              <Field
-                icon={Mail}
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              {error && <p className="text-sm text-primary">{error}</p>}
+              <Field icon={Mail} type="email" placeholder="Email or phone" />
+
               <button
                 type="submit"
-                disabled={loading}
-                className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform disabled:opacity-60"
+                className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform"
               >
-                {loading ? "Sending…" : "Reset Password"}
+                Reset Password
               </button>
             </form>
           </>
         ) : (
           <div className="mt-10 text-center space-y-4">
             <p className="text-sm text-muted-foreground">Check your email for a reset link.</p>
+
             <p className="text-xs text-muted-foreground">
               You can resend the link in{" "}
               <span className="font-semibold text-foreground">{countdown}s</span>
             </p>
+
             <button
-              disabled={!canResend || loading}
+              disabled={!canResend}
               onClick={handleResend}
               className={`w-full font-semibold rounded-2xl py-4 transition-transform ${
                 canResend
