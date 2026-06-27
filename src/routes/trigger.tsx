@@ -1,9 +1,14 @@
+import { RequireAuth } from "@/components/RequireAuth";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/trigger")({
-  component: Trigger,
+  component: () => (
+    <RequireAuth>
+      <Trigger />
+    </RequireAuth>
+  ),
 });
 
 // Full-bleed emergency-activated screen with countdown
