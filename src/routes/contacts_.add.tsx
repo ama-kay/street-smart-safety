@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { User, Phone, ChevronDown } from "lucide-react";
-import { ContactsShell } from "@/components/ContactsShell";
 
 export const Route = createFileRoute("/contacts_/add")({
   component: AddContact,

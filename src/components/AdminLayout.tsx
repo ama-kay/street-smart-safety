@@ -57,7 +57,10 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         </nav>
 
         <div className="px-3 py-4 border-t border-border">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-emergency transition-colors">
+          <button
+            onClick={() => navigate({ to: "/admin/login" })}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-emergency transition-colors"
+          >
             <LogOut className="h-4 w-4" />
             Log Out
           </button>
