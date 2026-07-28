@@ -3,7 +3,6 @@ import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { Phone, Plus } from "lucide-react";
-import { ContactsShell } from "@/components/ContactsShell";
 
 export const Route = createFileRoute("/contacts")({
   component: Contacts,
