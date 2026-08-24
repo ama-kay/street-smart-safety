@@ -1,0 +1,1 @@
+import{a as e,r as t}from"./createLucideIcon-B4jqqaQH.js";import{h as n,m as r,p as i}from"./index-C4XipDr0.js";var a=e(t(),1);function o(e){let t=r(),o=(0,a.useRef)(void 0);return i(t.stores.location,r=>{let i=e?.select?e.select(r):r;if(e?.structuralSharing??t.options.defaultStructuralSharing){let e=n(o.current,i);return o.current=e,e}return i})}export{o as t};
