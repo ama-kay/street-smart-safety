@@ -1,0 +1,9 @@
+{
+	"appId": "com.streetsmart.safety",
+	"appName": "Street Smart",
+	"webDir": "dist/client",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	}
+}
