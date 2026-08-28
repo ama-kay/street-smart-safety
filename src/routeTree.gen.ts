@@ -10,12 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TriggerRouteImport } from './routes/trigger'
+import { Route as TestShortcutRouteImport } from './routes/test-shortcut'
+import { Route as TestNewShortcutRouteImport } from './routes/test-new-shortcut'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShortcutSetupRouteImport } from './routes/shortcut-setup'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as NewShortcutTokenRouteImport } from './routes/new-shortcut-token'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HomeRouteImport } from './routes/home'
@@ -23,7 +26,9 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ContactsRouteImport } from './routes/contacts'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AddFirstContactRouteImport } from './routes/add-first-contact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
@@ -32,10 +37,21 @@ import { Route as AdminUserManagementRouteImport } from './routes/admin.userMana
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminLiveMonitoringRouteImport } from './routes/admin.liveMonitoring'
 import { Route as AdminEmergencyLogsRouteImport } from './routes/admin.emergencyLogs'
+import { Route as ContactsEditContactIdRouteImport } from './routes/contacts_.edit.$contactId'
 
 const TriggerRoute = TriggerRouteImport.update({
   id: '/trigger',
   path: '/trigger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestShortcutRoute = TestShortcutRouteImport.update({
+  id: '/test-shortcut',
+  path: '/test-shortcut',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestNewShortcutRoute = TestNewShortcutRouteImport.update({
+  id: '/test-new-shortcut',
+  path: '/test-new-shortcut',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -66,6 +82,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewShortcutTokenRoute = NewShortcutTokenRouteImport.update({
+  id: '/new-shortcut-token',
+  path: '/new-shortcut-token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -103,9 +124,19 @@ const ContactsRoute = ContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddFirstContactRoute = AddFirstContactRouteImport.update({
+  id: '/add-first-contact',
+  path: '/add-first-contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -148,10 +179,17 @@ const AdminEmergencyLogsRoute = AdminEmergencyLogsRouteImport.update({
   path: '/emergencyLogs',
   getParentRoute: () => AdminRoute,
 } as any)
+const ContactsEditContactIdRoute = ContactsEditContactIdRouteImport.update({
+  id: '/contacts_/edit/$contactId',
+  path: '/contacts/edit/$contactId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/add-first-contact': typeof AddFirstContactRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -159,12 +197,15 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/new-shortcut-token': typeof NewShortcutTokenRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
+  '/test-new-shortcut': typeof TestNewShortcutRoute
+  '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
@@ -173,9 +214,12 @@ export interface FileRoutesByFullPath {
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
+  '/contacts/edit/$contactId': typeof ContactsEditContactIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/add-first-contact': typeof AddFirstContactRoute
+  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -183,12 +227,15 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/new-shortcut-token': typeof NewShortcutTokenRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
+  '/test-new-shortcut': typeof TestNewShortcutRoute
+  '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
@@ -197,11 +244,14 @@ export interface FileRoutesByTo {
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin': typeof AdminIndexRoute
+  '/contacts/edit/$contactId': typeof ContactsEditContactIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/add-first-contact': typeof AddFirstContactRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -209,12 +259,15 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/new-shortcut-token': typeof NewShortcutTokenRoute
   '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/shortcut-setup': typeof ShortcutSetupRoute
   '/signup': typeof SignupRoute
+  '/test-new-shortcut': typeof TestNewShortcutRoute
+  '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
@@ -223,12 +276,15 @@ export interface FileRoutesById {
   '/contacts_/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
+  '/contacts_/edit/$contactId': typeof ContactsEditContactIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/add-first-contact'
     | '/admin'
+    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -236,12 +292,15 @@ export interface FileRouteTypes {
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/new-shortcut-token'
     | '/notifications'
     | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
     | '/signup'
+    | '/test-new-shortcut'
+    | '/test-shortcut'
     | '/trigger'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
@@ -250,9 +309,12 @@ export interface FileRouteTypes {
     | '/contacts/add'
     | '/profile/edit'
     | '/admin/'
+    | '/contacts/edit/$contactId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/add-first-contact'
+    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -260,12 +322,15 @@ export interface FileRouteTypes {
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/new-shortcut-token'
     | '/notifications'
     | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
     | '/signup'
+    | '/test-new-shortcut'
+    | '/test-shortcut'
     | '/trigger'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
@@ -274,10 +339,13 @@ export interface FileRouteTypes {
     | '/contacts/add'
     | '/profile/edit'
     | '/admin'
+    | '/contacts/edit/$contactId'
   id:
     | '__root__'
     | '/'
+    | '/add-first-contact'
     | '/admin'
+    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -285,12 +353,15 @@ export interface FileRouteTypes {
     | '/home'
     | '/how-it-works'
     | '/login'
+    | '/new-shortcut-token'
     | '/notifications'
     | '/privacy'
     | '/settings'
     | '/setup'
     | '/shortcut-setup'
     | '/signup'
+    | '/test-new-shortcut'
+    | '/test-shortcut'
     | '/trigger'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
@@ -299,11 +370,14 @@ export interface FileRouteTypes {
     | '/contacts_/add'
     | '/profile/edit'
     | '/admin/'
+    | '/contacts_/edit/$contactId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AddFirstContactRoute: typeof AddFirstContactRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
   ContactsRoute: typeof ContactsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -311,15 +385,19 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LoginRoute: typeof LoginRoute
+  NewShortcutTokenRoute: typeof NewShortcutTokenRoute
   NotificationsRoute: typeof NotificationsRoute
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   ShortcutSetupRoute: typeof ShortcutSetupRoute
   SignupRoute: typeof SignupRoute
+  TestNewShortcutRoute: typeof TestNewShortcutRoute
+  TestShortcutRoute: typeof TestShortcutRoute
   TriggerRoute: typeof TriggerRoute
   ContactsAddRoute: typeof ContactsAddRoute
   ProfileEditRoute: typeof ProfileEditRoute
+  ContactsEditContactIdRoute: typeof ContactsEditContactIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -329,6 +407,20 @@ declare module '@tanstack/react-router' {
       path: '/trigger'
       fullPath: '/trigger'
       preLoaderRoute: typeof TriggerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test-shortcut': {
+      id: '/test-shortcut'
+      path: '/test-shortcut'
+      fullPath: '/test-shortcut'
+      preLoaderRoute: typeof TestShortcutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test-new-shortcut': {
+      id: '/test-new-shortcut'
+      path: '/test-new-shortcut'
+      fullPath: '/test-new-shortcut'
+      preLoaderRoute: typeof TestNewShortcutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -371,6 +463,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-shortcut-token': {
+      id: '/new-shortcut-token'
+      path: '/new-shortcut-token'
+      fullPath: '/new-shortcut-token'
+      preLoaderRoute: typeof NewShortcutTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -422,11 +521,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/add-first-contact': {
+      id: '/add-first-contact'
+      path: '/add-first-contact'
+      fullPath: '/add-first-contact'
+      preLoaderRoute: typeof AddFirstContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -485,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmergencyLogsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/contacts_/edit/$contactId': {
+      id: '/contacts_/edit/$contactId'
+      path: '/contacts/edit/$contactId'
+      fullPath: '/contacts/edit/$contactId'
+      preLoaderRoute: typeof ContactsEditContactIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -508,7 +628,9 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AddFirstContactRoute: AddFirstContactRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
   ContactsRoute: ContactsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
@@ -516,15 +638,19 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   HowItWorksRoute: HowItWorksRoute,
   LoginRoute: LoginRoute,
+  NewShortcutTokenRoute: NewShortcutTokenRoute,
   NotificationsRoute: NotificationsRoute,
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   ShortcutSetupRoute: ShortcutSetupRoute,
   SignupRoute: SignupRoute,
+  TestNewShortcutRoute: TestNewShortcutRoute,
+  TestShortcutRoute: TestShortcutRoute,
   TriggerRoute: TriggerRoute,
   ContactsAddRoute: ContactsAddRoute,
   ProfileEditRoute: ProfileEditRoute,
+  ContactsEditContactIdRoute: ContactsEditContactIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

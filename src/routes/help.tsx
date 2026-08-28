@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { ArrowLeft, Play, ExternalLink } from "lucide-react";
 import { ScreenHeader } from "@/components/ScreenHeader";
+import { requireCompletedSetup } from "@/lib/routeGuards";
 
 
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/help")({
+  beforeLoad: requireCompletedSetup,
   component: Help,
 });
 

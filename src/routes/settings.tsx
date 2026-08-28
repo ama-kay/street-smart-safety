@@ -1,14 +1,43 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { requireCompletedSetup } from "@/lib/routeGuards";
+import { getUserProfile } from "@/services/profileService";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { User, Users, Bell, Lock, HelpCircle, ChevronRight, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
+  beforeLoad: requireCompletedSetup,
   component: Settings,
 });
 
 function Settings() {
+  const navigate = useNavigate();
+
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadProfile() {
+      const data = await getUserProfile();
+      setProfile(data);
+    }
+
+    loadProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout failed:", error.message);
+      return;
+    }
+
+    navigate({ to: "/login" });
+  };
+
   return (
     <MobileShell>
       <ScreenHeader title="Settings" />
@@ -17,11 +46,15 @@ function Settings() {
         {/* Profile Card */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4 shadow-card">
           <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-            JD
+            {profile?.first_name?.charAt(0).toUpperCase()}
           </div>
+
           <div className="flex-1">
-            <h3 className="font-semibold">John Doe</h3>
-            <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+            <h3 className="font-semibold">
+              {profile?.first_name} {profile?.last_name}
+            </h3>
+
+            <p className="text-xs text-muted-foreground">{profile?.email}</p>
           </div>
         </div>
 
@@ -36,11 +69,13 @@ function Settings() {
         </div>
 
         {/* Logout */}
-        <button className="mt-6 w-full text-primary font-semibold py-4 flex items-center justify-center gap-2">
-          <a href="/login" className="flex items-center gap-2">
-            <LogOut className="w-4 h-4" />
-            Log Out
-          </a>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="mt-6 w-full text-primary font-semibold py-4 flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Log Out
         </button>
       </div>
 

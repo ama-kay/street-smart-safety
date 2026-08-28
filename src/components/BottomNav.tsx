@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Users, Settings, User, AlertTriangle } from "lucide-react";
 

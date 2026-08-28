@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+/* eslint-disable prettier/prettier */
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { loginUser } from "@/services/authServices";
 import { MobileShell } from "@/components/MobileShell";
 import { ShieldLogo } from "@/components/ShieldLogo";
 import { Mail, Lock } from "lucide-react";
@@ -9,6 +12,31 @@ export const Route = createFileRoute("/login")({
 
 // Login screen
 function Login() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  setError("");
+  setLoading(true);
+
+  const result = await loginUser(email, password);
+
+  setLoading(false);
+
+  if (result.error) {
+    setError(result.error);
+    return;
+  }
+
+  navigate({ to: "/home" });
+};
+
   return (
     <MobileShell>
       <div className="flex-1 px-6 pt-16 pb-6">
@@ -20,20 +48,28 @@ function Login() {
           Login to your Street Smart account
         </p>
 
-        <form className="mt-10 space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <Field icon={Mail} type="email" placeholder="Email or phone" />
-          <Field icon={Lock} type="password" placeholder="Password" />
+          <form className="mt-10 space-y-4" onSubmit={handleLogin}>          
+          <Field icon={Mail} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
+          <Field icon={Lock} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
           <div className="text-right">
             <a href="./forgot-password" className="text-sm text-primary font-medium">
               Forgot password?
             </a>
           </div>
-          <Link
-            to="/setup"
-            className="block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform"
+
+          {error && (
+            <p className="text-sm text-red-500 text-center">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 shadow-emergency active:scale-[0.98] transition-transform disabled:opacity-50"
           >
-            Login
-          </Link>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-8">

@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
 import { Settings as Gear } from "lucide-react";
+import { requireIncompleteSetup } from "@/lib/routeGuards";
+
 
 export const Route = createFileRoute("/setup")({
+  beforeLoad: requireIncompleteSetup,
   component: Setup,
 });
 

@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { requireCompletedSetup } from "@/lib/routeGuards";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/privacy")({
+  beforeLoad: requireCompletedSetup,
   component: Privacy,
 });
 

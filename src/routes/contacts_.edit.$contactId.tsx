@@ -1,29 +1,70 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { requireCompletedSetup } from "@/lib/routeGuards";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { User, Phone, ChevronDown, Book, ShieldAlert, HeartPulse, UserRound } from "lucide-react";
-import { addEmergencyContact } from "@/services/contactsService";
+import {
+  getEmergencyContacts,
+  updateEmergencyContact,
+  type EmergencyContact,
+} from "@/services/contactsService";
 
-export const Route = createFileRoute("/contacts_/add")({
+export const Route = createFileRoute("/contacts_/edit/$contactId")({
   beforeLoad: requireCompletedSetup,
-  component: AddContact,
+  component: EditContact,
 });
 
-function AddContact() {
+function EditContact() {
   const navigate = useNavigate();
+  const { contactId } = Route.useParams();
+
+  const [contact, setContact] = useState<EmergencyContact | null>(null);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [relationship, setRelationship] = useState("");
+  const [address, setAddress] = useState("");
 
   const [shareMedicalInfo, setShareMedicalInfo] = useState(false);
   const [sharePersonalInfo, setSharePersonalInfo] = useState(false);
 
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadContact() {
+      try {
+        const contacts = await getEmergencyContacts();
+
+        const selectedContact = contacts.find(
+          (currentContact) => currentContact.contact_id === contactId,
+        );
+
+        if (!selectedContact) {
+          setError("Contact not found.");
+          return;
+        }
+
+        setContact(selectedContact);
+
+        setName(selectedContact.name);
+        setPhone(selectedContact.phone);
+        setRelationship(selectedContact.relationship);
+        setAddress(selectedContact.address);
+
+        setShareMedicalInfo(selectedContact.share_medical_info);
+        setSharePersonalInfo(selectedContact.share_personal_info);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load contact.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadContact();
+  }, [contactId]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,7 +78,7 @@ function AddContact() {
     setError("");
 
     try {
-      await addEmergencyContact({
+      const updatedContact = await updateEmergencyContact(contactId, {
         name,
         phone,
         relationship,
@@ -46,17 +87,43 @@ function AddContact() {
         share_personal_info: sharePersonalInfo,
       });
 
+      setContact(updatedContact);
+
       navigate({ to: "/contacts" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add contact.");
+      setError(err instanceof Error ? err.message : "Failed to update contact.");
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <MobileShell>
+        <ScreenHeader title="Edit Contact" back="/contacts" />
+
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-sm text-muted-foreground">Loading contact...</p>
+        </div>
+      </MobileShell>
+    );
+  }
+
+  if (!contact) {
+    return (
+      <MobileShell>
+        <ScreenHeader title="Edit Contact" back="/contacts" />
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <p className="text-sm text-red-500 text-center">{error}</p>
+        </div>
+      </MobileShell>
+    );
+  }
+
   return (
     <MobileShell>
-      <ScreenHeader title="Add Contact" back="/contacts" />
+      <ScreenHeader title="Edit Contact" back="/contacts" />
 
       <form onSubmit={handleSubmit} className="flex-1 px-6 pt-6 pb-6 flex flex-col overflow-y-auto">
         <div className="space-y-4 flex-1">
@@ -150,7 +217,7 @@ function AddContact() {
           disabled={saving}
           className="w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 shadow-emergency active:scale-[0.98] transition-transform disabled:opacity-50 mt-6"
         >
-          {saving ? "Saving..." : "Save Contact"}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
     </MobileShell>

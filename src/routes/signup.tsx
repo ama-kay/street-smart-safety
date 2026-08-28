@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { signupUser } from "@/services/authServices";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { User, Phone, Mail, Lock } from "lucide-react";
@@ -9,6 +11,50 @@ export const Route = createFileRoute("/signup")({
 
 // Account creation
 function Signup() {
+  const navigate = useNavigate();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [otherNames, setOtherNames] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    const result = await signupUser({
+      email,
+      password,
+      firstName,
+      lastName,
+      otherNames,
+      phone,
+    });
+
+    setLoading(false);
+
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    navigate({ to: "/add-first-contact" });
+  };
+
   return (
     <MobileShell>
       <ScreenHeader title="Create Account" back="/login" />
@@ -16,20 +62,63 @@ function Signup() {
         <p className="text-muted-foreground text-sm">
           Set up your profile to start protecting yourself.
         </p>
-        <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <Field icon={User} placeholder="Full Name" />
-          <Field icon={Phone} type="tel" placeholder="Phone Number" />
-          <Field icon={Mail} type="email" placeholder="Email (optional)" />
-          <Field icon={Lock} type="password" placeholder="Password" />
-          <Field icon={Lock} type="password" placeholder="Confirm Password" />
+        <form className="mt-6 space-y-4" onSubmit={handleSignup}>
+          <Field
+            icon={User}
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <Field
+            icon={User}
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          <Field
+            icon={User}
+            placeholder="Other Name(s)"
+            value={otherNames}
+            onChange={(e) => setOtherNames(e.target.value)}
+          />
+          <Field
+            icon={Phone}
+            type="tel"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Field
+            icon={Mail}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Field
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Field
+            icon={Lock}
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
-          <Link
-            to="/setup"
-            className="mt-10 block w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 text-center shadow-emergency active:scale-[0.98] transition-transform mt-2"
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 w-full bg-primary text-primary-foreground font-semibold rounded-2xl py-4 shadow-emergency active:scale-[0.98] transition-transform disabled:opacity-50"
           >
-            Create Account
-          </Link>
+            {loading ? "Creating Account..." : "Create Account"}
+          </button>
         </form>
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
         <p className="text-center text-sm text-muted-foreground mt-8">
           Already have an account?{" "}
           <Link to="/login" className="text-primary font-semibold">

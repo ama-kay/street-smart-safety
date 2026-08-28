@@ -1,21 +1,55 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { requireCompletedSetup } from "@/lib/routeGuards";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Phone } from "lucide-react";
+import { sendSOSAlert } from "@/services/alertService";
 
 export const Route = createFileRoute("/trigger")({
+  beforeLoad: requireCompletedSetup,
   component: Trigger,
 });
 
-// Full-bleed emergency-activated screen with countdown
 function Trigger() {
   const [seconds, setSeconds] = useState(24);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState("");
+
+  const alertAttempted = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (seconds <= 0) return;
-    const t = setTimeout(() => setSeconds((s) => s - 1), 1000);
-    return () => clearTimeout(t);
+    if (seconds <= 0) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setSeconds((currentSeconds) => currentSeconds - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [seconds]);
+
+  useEffect(() => {
+    if (seconds !== 0 || alertAttempted.current) {
+      return;
+    }
+
+    alertAttempted.current = true;
+    setIsSending(true);
+
+    async function triggerEmergency() {
+      try {
+        await sendSOSAlert();
+
+        navigate({ to: "/home" });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to send emergency alert.");
+        setIsSending(false);
+      }
+    }
+
+    triggerEmergency();
+  }, [seconds, navigate]);
 
   const total = 24;
   const radius = 120;
@@ -29,9 +63,15 @@ function Trigger() {
           <div className="w-16 h-16 rounded-full bg-primary-foreground/15 flex items-center justify-center backdrop-blur">
             <AlertTriangle className="w-8 h-8" strokeWidth={2.4} />
           </div>
+
           <h1 className="mt-5 text-3xl font-bold tracking-tight">Emergency Activated</h1>
+
           <p className="mt-2 text-primary-foreground/80 text-sm max-w-xs">
-            Alert will be sent to your emergency contacts in {seconds} seconds.
+            {seconds > 0
+              ? `Alert will be sent to your emergency contacts in ${seconds} seconds.`
+              : isSending
+                ? "Sending emergency alert..."
+                : error}
           </p>
         </div>
 
@@ -46,6 +86,7 @@ function Trigger() {
                 stroke="rgba(255,255,255,0.18)"
                 strokeWidth="10"
               />
+
               <circle
                 cx="140"
                 cy="140"
@@ -59,8 +100,10 @@ function Trigger() {
                 style={{ transition: "stroke-dashoffset 1s linear" }}
               />
             </svg>
+
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-7xl font-bold tabular-nums">{seconds}</span>
+
               <span className="text-sm uppercase tracking-widest text-primary-foreground/80 mt-1">
                 seconds
               </span>
@@ -71,10 +114,12 @@ function Trigger() {
         <div className="space-y-3">
           <button
             onClick={() => navigate({ to: "/home" })}
-            className="block w-full bg-primary-foreground text-primary font-bold rounded-2xl py-4 active:scale-[0.98] transition-transform"
+            disabled={seconds === 0 || isSending}
+            className="block w-full bg-primary-foreground text-primary font-bold rounded-2xl py-4 active:scale-[0.98] transition-transform disabled:opacity-50"
           >
             Cancel Emergency
           </button>
+
           <button className="w-full border-2 border-primary-foreground/30 text-primary-foreground font-semibold rounded-2xl py-4 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
             <Phone className="w-5 h-5" />
             Call Emergency Services

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ReactNode } from "react";
 
 // Mobile-styled outer frame so the design feels like a phone app
