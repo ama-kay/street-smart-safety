@@ -33,6 +33,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ContactsAddRouteImport } from './routes/contacts_.add'
+import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as AdminUserManagementRouteImport } from './routes/admin.userManagement'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminLiveMonitoringRouteImport } from './routes/admin.liveMonitoring'
@@ -159,6 +160,11 @@ const ContactsAddRoute = ContactsAddRouteImport.update({
   path: '/contacts/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin_/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminUserManagementRoute = AdminUserManagementRouteImport.update({
   id: '/userManagement',
   path: '/userManagement',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/userManagement': typeof AdminUserManagementRoute
+  '/admin/login': typeof AdminLoginRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/userManagement': typeof AdminUserManagementRoute
+  '/admin/login': typeof AdminLoginRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin': typeof AdminIndexRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/userManagement': typeof AdminUserManagementRoute
+  '/admin_/login': typeof AdminLoginRoute
   '/contacts_/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
   '/admin/': typeof AdminIndexRoute
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/admin/liveMonitoring'
     | '/admin/settings'
     | '/admin/userManagement'
+    | '/admin/login'
     | '/contacts/add'
     | '/profile/edit'
     | '/admin/'
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/admin/liveMonitoring'
     | '/admin/settings'
     | '/admin/userManagement'
+    | '/admin/login'
     | '/contacts/add'
     | '/profile/edit'
     | '/admin'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin/liveMonitoring'
     | '/admin/settings'
     | '/admin/userManagement'
+    | '/admin_/login'
     | '/contacts_/add'
     | '/profile/edit'
     | '/admin/'
@@ -395,6 +407,7 @@ export interface RootRouteChildren {
   TestNewShortcutRoute: typeof TestNewShortcutRoute
   TestShortcutRoute: typeof TestShortcutRoute
   TriggerRoute: typeof TriggerRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ContactsAddRoute: typeof ContactsAddRoute
   ProfileEditRoute: typeof ProfileEditRoute
   ContactsEditContactIdRoute: typeof ContactsEditContactIdRoute
@@ -570,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/login': {
+      id: '/admin_/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/userManagement': {
       id: '/admin/userManagement'
       path: '/userManagement'
@@ -648,6 +668,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestNewShortcutRoute: TestNewShortcutRoute,
   TestShortcutRoute: TestShortcutRoute,
   TriggerRoute: TriggerRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ContactsAddRoute: ContactsAddRoute,
   ProfileEditRoute: ProfileEditRoute,
   ContactsEditContactIdRoute: ContactsEditContactIdRoute,

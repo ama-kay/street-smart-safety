@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import { ShieldLogo } from "@/components/ShieldLogo";
