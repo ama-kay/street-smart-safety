@@ -13,13 +13,13 @@ export const supabase = createClient(
   },
 );
 
-supabase
-  .channel("sos-alerts")
-  .on(
-    "postgres_changes",
-    { event: "INSERT", schema: "public", table: "sos_alerts" },
-    (payload) => {
-      console.log("New SOS:", payload);
-    }
-  )
-  .subscribe();
+// supabase
+//   .channel("sos-alerts")
+//   .on(
+//     "postgres_changes",
+//     { event: "INSERT", schema: "public", table: "sos_alerts" },
+//     (payload) => {
+//       console.log("New SOS:", payload);
+//     }
+//   )
+//   .subscribe();
