@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
 import { supabase } from "@/lib/supabase";
-import { getUserProfileById, type UserProfile } from "@/services/profileService";
 
 export const Route = createFileRoute("/track/$alertId/$trackingToken")({
   component: TrackingPage,
@@ -21,17 +20,40 @@ type Alert = {
   location_updated_at: string | null;
 };
 
-type ContactPermissions = {
-  contact_id: string;
-  share_medical_info: boolean;
-  share_personal_info: boolean;
+type Victim = {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  other_names: string;
+  phone: string;
+  email?: string | null;
+  DOB?: string | null;
+  country?: string | null;
+  gender?: string | null;
+  profession?: string | null;
+  address?: string | null;
+  avatar_url?: string | null;
+  blood_type?: string | null;
+  allergies?: string | null;
+  health_conditions?: string | null;
+};
+
+type TrackingAccessResponse = {
+  alert: Alert;
+  permissions: {
+    contact_id: string;
+    share_medical_info: boolean;
+    share_personal_info: boolean;
+  };
+  victim: Victim | null;
+  error?: string;
 };
 
 function TrackingPage() {
   const { alertId, trackingToken } = Route.useParams();
 
   const [alert, setAlert] = useState<Alert | null>(null);
-  const [victim, setVictim] = useState<UserProfile | null>(null);
+  const [victim, setVictim] = useState<Victim | null>(null);
 
   const [shareMedicalInfo, setShareMedicalInfo] = useState(false);
   const [sharePersonalInfo, setSharePersonalInfo] = useState(false);
@@ -47,125 +69,52 @@ function TrackingPage() {
         setLoading(true);
         setError(null);
 
-        // =====================================================
-        // 1. Get the emergency alert
-        // =====================================================
+        const { data, error: functionError } =
+          await supabase.functions.invoke<TrackingAccessResponse>("tracking-access", {
+            body: {
+              alertId,
+              trackingToken,
+            },
+          });
 
-        const { data: alertData, error: alertError } = await supabase
-          .from("sos_alerts")
-          .select(
-            `
-              id,
-              user_id,
-              status,
-              message,
-              trigger_source,
-              created_at,
-              latitude,
-              longitude,
-              location_accuracy,
-              location_updated_at
-            `,
-          )
-          .eq("id", alertId)
-          .single();
+        if (!mounted) {
+          return;
+        }
 
-        if (!mounted) return;
-
-        if (alertError || !alertData) {
-          console.error("Failed to load emergency:", alertError);
+        if (functionError) {
+          console.error("Tracking access function failed:", functionError);
 
           setError("This emergency link is invalid or the emergency could not be found.");
           setLoading(false);
-
           return;
         }
 
-        setAlert(alertData as Alert);
+        if (!data || data.error) {
+          console.error("Tracking access error:", data?.error);
 
-        // =====================================================
-        // 2. Find the delivery using the tracking token
-        // =====================================================
-
-        const { data: delivery, error: deliveryError } = await supabase
-          .from("alert_deliveries")
-          .select("id, contact_id")
-          .eq("alert_id", alertId)
-          .eq("tracking_token", trackingToken)
-          .maybeSingle();
-
-        if (!mounted) return;
-
-        if (deliveryError || !delivery) {
-          console.error("Invalid tracking token:", deliveryError);
-
-          setError("This tracking link is invalid or has expired.");
+          setError(
+            data?.error || "This emergency link is invalid or the emergency could not be found.",
+          );
           setLoading(false);
-
           return;
         }
 
-        // =====================================================
-        // 3. Get this contact's sharing permissions
-        // =====================================================
+        console.log("TRACKING ACCESS DATA:", data);
 
-        const { data: contact, error: contactError } = await supabase
-          .from("emergency_contact")
-          .select(
-            `
-              contact_id,
-              user_id,
-              share_medical_info,
-              share_personal_info
-            `,
-          )
-          .eq("contact_id", delivery.contact_id)
-          .eq("user_id", alertData.user_id)
-          .maybeSingle();
+        setAlert(data.alert);
+        setVictim(data.victim);
 
-        if (!mounted) return;
+        setSharePersonalInfo(data.permissions?.share_personal_info ?? false);
 
-        if (contactError || !contact) {
-          console.error("Failed to load contact permissions:", contactError);
-
-          setError("The contact associated with this tracking link could not be verified.");
-          setLoading(false);
-
-          return;
-        }
-
-        const permissions = contact as ContactPermissions;
-
-        console.log("TRACKING CONTACT PERMISSIONS:", {
-          contact_id: permissions.contact_id,
-          share_personal_info: permissions.share_personal_info,
-          share_medical_info: permissions.share_medical_info,
-        });
-
-        setSharePersonalInfo(permissions.share_personal_info);
-        setShareMedicalInfo(permissions.share_medical_info);
-
-        // =====================================================
-        // 4. Load victim profile
-        // =====================================================
-
-        const victimProfile = await getUserProfileById(alertData.user_id);
-
-        if (!mounted) return;
-
-        if (victimProfile) {
-          setVictim(victimProfile);
-
-          console.log("VICTIM PROFILE LOADED:", victimProfile);
-        } else {
-          console.error("Could not load victim profile.");
-        }
+        setShareMedicalInfo(data.permissions?.share_medical_info ?? false);
 
         setLoading(false);
       } catch (loadError) {
         console.error("Tracking page error:", loadError);
 
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
         setError("Something went wrong while loading this emergency.");
         setLoading(false);
@@ -175,7 +124,7 @@ function TrackingPage() {
     loadEmergency();
 
     // =======================================================
-    // 5. Listen for live emergency updates
+    // Listen for live emergency/location updates
     // =======================================================
 
     const channel = supabase
@@ -191,7 +140,9 @@ function TrackingPage() {
         (payload) => {
           console.log("Realtime location update:", payload.new);
 
-          if (!mounted) return;
+          if (!mounted) {
+            return;
+          }
 
           setAlert(payload.new as Alert);
         },
@@ -329,6 +280,7 @@ function TrackingPage() {
 
           <div className="mt-4 space-y-4">
             {/* Profile Photo */}
+
             {showAvatar && victim?.avatar_url && (
               <div className="flex justify-center">
                 <img
@@ -340,6 +292,7 @@ function TrackingPage() {
             )}
 
             {/* Name - ALWAYS SHOWN */}
+
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Name</p>
 
@@ -347,6 +300,7 @@ function TrackingPage() {
             </div>
 
             {/* Phone - ALWAYS SHOWN */}
+
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Phone</p>
 
@@ -355,7 +309,6 @@ function TrackingPage() {
 
             {/* ================================================= */}
             {/* Additional Personal Information */}
-            {/* Only shown when share_personal_info = true */}
             {/* ================================================= */}
 
             {hasAdditionalPersonalInformation && (
@@ -364,6 +317,7 @@ function TrackingPage() {
 
                 <div className="mt-3 space-y-3">
                   {/* Email */}
+
                   {victim?.email && (
                     <div>
                       <p className="text-xs text-gray-500">Email</p>
@@ -373,6 +327,7 @@ function TrackingPage() {
                   )}
 
                   {/* Date of Birth */}
+
                   {victim?.DOB && (
                     <div>
                       <p className="text-xs text-gray-500">Date of Birth</p>
@@ -382,6 +337,7 @@ function TrackingPage() {
                   )}
 
                   {/* Gender */}
+
                   {victim?.gender && (
                     <div>
                       <p className="text-xs text-gray-500">Gender</p>
@@ -391,6 +347,7 @@ function TrackingPage() {
                   )}
 
                   {/* Country */}
+
                   {victim?.country && (
                     <div>
                       <p className="text-xs text-gray-500">Country</p>
@@ -400,6 +357,7 @@ function TrackingPage() {
                   )}
 
                   {/* Profession */}
+
                   {victim?.profession && (
                     <div>
                       <p className="text-xs text-gray-500">Profession</p>
@@ -409,6 +367,7 @@ function TrackingPage() {
                   )}
 
                   {/* Address */}
+
                   {victim?.address && (
                     <div>
                       <p className="text-xs text-gray-500">Address</p>
@@ -422,7 +381,6 @@ function TrackingPage() {
 
             {/* ================================================= */}
             {/* Medical Information */}
-            {/* Only shown when share_medical_info = true */}
             {/* ================================================= */}
 
             {hasMedicalInformation && (
@@ -431,6 +389,7 @@ function TrackingPage() {
 
                 <div className="mt-3 space-y-3">
                   {/* Blood Type */}
+
                   {victim?.blood_type && (
                     <div>
                       <p className="text-xs text-gray-500">Blood Type</p>
@@ -440,6 +399,7 @@ function TrackingPage() {
                   )}
 
                   {/* Allergies */}
+
                   {victim?.allergies && (
                     <div>
                       <p className="text-xs text-gray-500">Allergies</p>
@@ -449,6 +409,7 @@ function TrackingPage() {
                   )}
 
                   {/* Health Conditions */}
+
                   {victim?.health_conditions && (
                     <div>
                       <p className="text-xs text-gray-500">Health Conditions</p>
