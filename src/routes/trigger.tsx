@@ -3,6 +3,7 @@ import { requireCompletedSetup } from "@/lib/routeGuards";
 import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Phone } from "lucide-react";
 import { sendSOSAlert } from "@/services/alertService";
+import { startEmergencyTracking } from "@/services/trackingService";
 
 export const Route = createFileRoute("/trigger")({
   beforeLoad: requireCompletedSetup,
@@ -39,7 +40,10 @@ function Trigger() {
 
     async function triggerEmergency() {
       try {
-        await sendSOSAlert();
+        const alert = await sendSOSAlert();
+        console.log("EMERGENCY CREATED:", alert);
+
+        await startEmergencyTracking(alert.id);
 
         navigate({ to: "/home" });
       } catch (err) {
@@ -118,11 +122,6 @@ function Trigger() {
             className="block w-full bg-primary-foreground text-primary font-bold rounded-2xl py-4 active:scale-[0.98] transition-transform disabled:opacity-50"
           >
             Cancel Emergency
-          </button>
-
-          <button className="w-full border-2 border-primary-foreground/30 text-primary-foreground font-semibold rounded-2xl py-4 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-            <Phone className="w-5 h-5" />
-            Call Emergency Services
           </button>
         </div>
       </div>

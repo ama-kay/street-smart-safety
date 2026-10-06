@@ -50,6 +50,33 @@ export async function getUserProfile(): Promise<UserProfile | null> {
 }
 
 /*
+ * Get a user's profile by their user ID.
+ *
+ * Used when another authenticated user needs to
+ * view profile information associated with an SOS alert.
+ */
+export async function getUserProfileById(
+  userId: string,
+): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from("user_profile")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error loading user profile:", error);
+    return null;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return data as UserProfile;
+}
+
+/*
  * Update the currently logged-in user's profile.
  */
 export async function updateUserProfile(

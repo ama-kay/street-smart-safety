@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { requireCompletedSetup } from "@/lib/routeGuards";
 import { useState } from "react";
@@ -179,7 +180,9 @@ function PermissionRow({
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold">{title}</p>
 
-        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {description}
+        </p>
       </div>
 
       <button
@@ -189,12 +192,14 @@ function PermissionRow({
         aria-label={`Share ${title.toLowerCase()}`}
         onClick={() => onChange(!enabled)}
         className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
-          enabled ? "bg-primary" : "bg-secondary border border-border"
+          enabled
+            ? "bg-primary"
+            : "bg-secondary border border-border"
         }`}
       >
         <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-            enabled ? "translate-x-5" : "translate-x-1"
+          className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-200 ${
+            enabled ? "translate-x-5" : "translate-x-0"
           }`}
         />
       </button>

@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ReactNode } from "react";
+import { EmergencyModal } from "@/components/EmergencyModal";
 
 // Mobile-styled outer frame so the design feels like a phone app
 // regardless of browser viewport.
@@ -8,6 +9,7 @@ export function MobileShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen w-full bg-muted flex items-stretch justify-center">
       <div className="w-full max-w-[440px] min-h-screen bg-background relative shadow-2xl flex flex-col">
         {children}
+          <EmergencyModal />
       </div>
     </div>
   );

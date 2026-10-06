@@ -2,6 +2,7 @@
 import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import { ShieldLogo } from "@/components/ShieldLogo";
+import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   Radio,
@@ -26,6 +27,20 @@ const sidebarItems = [
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  async function handleLogout() {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("Failed to log out:", error);
+    return;
+  }
+
+  navigate({
+    to: "/admin/login",
+    replace: true,
+  });
+}
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -138,7 +153,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         <div className="px-3 py-4 border-t border-border">
           <button
             title="Log Out"
-            onClick={() => navigate({ to: "/admin-login" })}
+            onClick={handleLogout}
             className="
               w-full flex items-center
               justify-center lg:justify-start

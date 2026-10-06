@@ -26,11 +26,12 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ContactsRouteImport } from './routes/contacts'
-import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AddFirstContactRouteImport } from './routes/add-first-contact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as TestTrackingAlertIdRouteImport } from './routes/testTracking.$alertId'
+import { Route as TestGpsAlertIdRouteImport } from './routes/testGps.$alertId'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as ContactsAddRouteImport } from './routes/contacts_.add'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
@@ -38,7 +39,12 @@ import { Route as AdminUserManagementRouteImport } from './routes/admin.userMana
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminLiveMonitoringRouteImport } from './routes/admin.liveMonitoring'
 import { Route as AdminEmergencyLogsRouteImport } from './routes/admin.emergencyLogs'
+import { Route as TrackAlertIdTrackingTokenRouteImport } from './routes/track.$alertId.$trackingToken'
 import { Route as ContactsEditContactIdRouteImport } from './routes/contacts_.edit.$contactId'
+import { Route as AdminLiveMonitoringAlertIdRouteImport } from './routes/admin.liveMonitoring_.$alertId'
+import { Route as AdminEmergencyLogsAlertIdRouteImport } from './routes/admin.emergencyLogs_.$alertId'
+import { Route as AdminUserManagementUserIdViewRouteImport } from './routes/admin.userManagement_.$userId.view'
+import { Route as AdminUserManagementUserIdEditRouteImport } from './routes/admin.userManagement_.$userId.edit'
 
 const TriggerRoute = TriggerRouteImport.update({
   id: '/trigger',
@@ -125,11 +131,6 @@ const ContactsRoute = ContactsRouteImport.update({
   path: '/contacts',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin-login',
-  path: '/admin-login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -149,6 +150,16 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const TestTrackingAlertIdRoute = TestTrackingAlertIdRouteImport.update({
+  id: '/testTracking/$alertId',
+  path: '/testTracking/$alertId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestGpsAlertIdRoute = TestGpsAlertIdRouteImport.update({
+  id: '/testGps/$alertId',
+  path: '/testGps/$alertId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileEditRoute = ProfileEditRouteImport.update({
   id: '/profile/edit',
@@ -185,17 +196,46 @@ const AdminEmergencyLogsRoute = AdminEmergencyLogsRouteImport.update({
   path: '/emergencyLogs',
   getParentRoute: () => AdminRoute,
 } as any)
+const TrackAlertIdTrackingTokenRoute =
+  TrackAlertIdTrackingTokenRouteImport.update({
+    id: '/track/$alertId/$trackingToken',
+    path: '/track/$alertId/$trackingToken',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ContactsEditContactIdRoute = ContactsEditContactIdRouteImport.update({
   id: '/contacts_/edit/$contactId',
   path: '/contacts/edit/$contactId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLiveMonitoringAlertIdRoute =
+  AdminLiveMonitoringAlertIdRouteImport.update({
+    id: '/liveMonitoring_/$alertId',
+    path: '/liveMonitoring/$alertId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminEmergencyLogsAlertIdRoute =
+  AdminEmergencyLogsAlertIdRouteImport.update({
+    id: '/emergencyLogs_/$alertId',
+    path: '/emergencyLogs/$alertId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminUserManagementUserIdViewRoute =
+  AdminUserManagementUserIdViewRouteImport.update({
+    id: '/userManagement_/$userId/view',
+    path: '/userManagement/$userId/view',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminUserManagementUserIdEditRoute =
+  AdminUserManagementUserIdEditRouteImport.update({
+    id: '/userManagement_/$userId/edit',
+    path: '/userManagement/$userId/edit',
+    getParentRoute: () => AdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add-first-contact': typeof AddFirstContactRoute
   '/admin': typeof AdminRouteWithChildren
-  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -220,13 +260,19 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/testGps/$alertId': typeof TestGpsAlertIdRoute
+  '/testTracking/$alertId': typeof TestTrackingAlertIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/emergencyLogs/$alertId': typeof AdminEmergencyLogsAlertIdRoute
+  '/admin/liveMonitoring/$alertId': typeof AdminLiveMonitoringAlertIdRoute
   '/contacts/edit/$contactId': typeof ContactsEditContactIdRoute
+  '/track/$alertId/$trackingToken': typeof TrackAlertIdTrackingTokenRoute
+  '/admin/userManagement/$userId/edit': typeof AdminUserManagementUserIdEditRoute
+  '/admin/userManagement/$userId/view': typeof AdminUserManagementUserIdViewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add-first-contact': typeof AddFirstContactRoute
-  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -251,15 +297,21 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/contacts/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/testGps/$alertId': typeof TestGpsAlertIdRoute
+  '/testTracking/$alertId': typeof TestTrackingAlertIdRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/emergencyLogs/$alertId': typeof AdminEmergencyLogsAlertIdRoute
+  '/admin/liveMonitoring/$alertId': typeof AdminLiveMonitoringAlertIdRoute
   '/contacts/edit/$contactId': typeof ContactsEditContactIdRoute
+  '/track/$alertId/$trackingToken': typeof TrackAlertIdTrackingTokenRoute
+  '/admin/userManagement/$userId/edit': typeof AdminUserManagementUserIdEditRoute
+  '/admin/userManagement/$userId/view': typeof AdminUserManagementUserIdViewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/add-first-contact': typeof AddFirstContactRoute
   '/admin': typeof AdminRouteWithChildren
-  '/admin-login': typeof AdminLoginRoute
   '/contacts': typeof ContactsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -284,8 +336,15 @@ export interface FileRoutesById {
   '/admin_/login': typeof AdminLoginRoute
   '/contacts_/add': typeof ContactsAddRoute
   '/profile/edit': typeof ProfileEditRoute
+  '/testGps/$alertId': typeof TestGpsAlertIdRoute
+  '/testTracking/$alertId': typeof TestTrackingAlertIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/emergencyLogs_/$alertId': typeof AdminEmergencyLogsAlertIdRoute
+  '/admin/liveMonitoring_/$alertId': typeof AdminLiveMonitoringAlertIdRoute
   '/contacts_/edit/$contactId': typeof ContactsEditContactIdRoute
+  '/track/$alertId/$trackingToken': typeof TrackAlertIdTrackingTokenRoute
+  '/admin/userManagement_/$userId/edit': typeof AdminUserManagementUserIdEditRoute
+  '/admin/userManagement_/$userId/view': typeof AdminUserManagementUserIdViewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -293,7 +352,6 @@ export interface FileRouteTypes {
     | '/'
     | '/add-first-contact'
     | '/admin'
-    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -318,13 +376,19 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/contacts/add'
     | '/profile/edit'
+    | '/testGps/$alertId'
+    | '/testTracking/$alertId'
     | '/admin/'
+    | '/admin/emergencyLogs/$alertId'
+    | '/admin/liveMonitoring/$alertId'
     | '/contacts/edit/$contactId'
+    | '/track/$alertId/$trackingToken'
+    | '/admin/userManagement/$userId/edit'
+    | '/admin/userManagement/$userId/view'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/add-first-contact'
-    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -349,14 +413,20 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/contacts/add'
     | '/profile/edit'
+    | '/testGps/$alertId'
+    | '/testTracking/$alertId'
     | '/admin'
+    | '/admin/emergencyLogs/$alertId'
+    | '/admin/liveMonitoring/$alertId'
     | '/contacts/edit/$contactId'
+    | '/track/$alertId/$trackingToken'
+    | '/admin/userManagement/$userId/edit'
+    | '/admin/userManagement/$userId/view'
   id:
     | '__root__'
     | '/'
     | '/add-first-contact'
     | '/admin'
-    | '/admin-login'
     | '/contacts'
     | '/forgot-password'
     | '/help'
@@ -381,15 +451,21 @@ export interface FileRouteTypes {
     | '/admin_/login'
     | '/contacts_/add'
     | '/profile/edit'
+    | '/testGps/$alertId'
+    | '/testTracking/$alertId'
     | '/admin/'
+    | '/admin/emergencyLogs_/$alertId'
+    | '/admin/liveMonitoring_/$alertId'
     | '/contacts_/edit/$contactId'
+    | '/track/$alertId/$trackingToken'
+    | '/admin/userManagement_/$userId/edit'
+    | '/admin/userManagement_/$userId/view'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddFirstContactRoute: typeof AddFirstContactRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AdminLoginRoute: typeof AdminLoginRoute
   ContactsRoute: typeof ContactsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -410,7 +486,10 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   ContactsAddRoute: typeof ContactsAddRoute
   ProfileEditRoute: typeof ProfileEditRoute
+  TestGpsAlertIdRoute: typeof TestGpsAlertIdRoute
+  TestTrackingAlertIdRoute: typeof TestTrackingAlertIdRoute
   ContactsEditContactIdRoute: typeof ContactsEditContactIdRoute
+  TrackAlertIdTrackingTokenRoute: typeof TrackAlertIdTrackingTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -534,13 +613,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin-login': {
-      id: '/admin-login'
-      path: '/admin-login'
-      fullPath: '/admin-login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -568,6 +640,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/testTracking/$alertId': {
+      id: '/testTracking/$alertId'
+      path: '/testTracking/$alertId'
+      fullPath: '/testTracking/$alertId'
+      preLoaderRoute: typeof TestTrackingAlertIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/testGps/$alertId': {
+      id: '/testGps/$alertId'
+      path: '/testGps/$alertId'
+      fullPath: '/testGps/$alertId'
+      preLoaderRoute: typeof TestGpsAlertIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/profile/edit': {
       id: '/profile/edit'
@@ -618,12 +704,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmergencyLogsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/track/$alertId/$trackingToken': {
+      id: '/track/$alertId/$trackingToken'
+      path: '/track/$alertId/$trackingToken'
+      fullPath: '/track/$alertId/$trackingToken'
+      preLoaderRoute: typeof TrackAlertIdTrackingTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contacts_/edit/$contactId': {
       id: '/contacts_/edit/$contactId'
       path: '/contacts/edit/$contactId'
       fullPath: '/contacts/edit/$contactId'
       preLoaderRoute: typeof ContactsEditContactIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/liveMonitoring_/$alertId': {
+      id: '/admin/liveMonitoring_/$alertId'
+      path: '/liveMonitoring/$alertId'
+      fullPath: '/admin/liveMonitoring/$alertId'
+      preLoaderRoute: typeof AdminLiveMonitoringAlertIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/emergencyLogs_/$alertId': {
+      id: '/admin/emergencyLogs_/$alertId'
+      path: '/emergencyLogs/$alertId'
+      fullPath: '/admin/emergencyLogs/$alertId'
+      preLoaderRoute: typeof AdminEmergencyLogsAlertIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/userManagement_/$userId/view': {
+      id: '/admin/userManagement_/$userId/view'
+      path: '/userManagement/$userId/view'
+      fullPath: '/admin/userManagement/$userId/view'
+      preLoaderRoute: typeof AdminUserManagementUserIdViewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/userManagement_/$userId/edit': {
+      id: '/admin/userManagement_/$userId/edit'
+      path: '/userManagement/$userId/edit'
+      fullPath: '/admin/userManagement/$userId/edit'
+      preLoaderRoute: typeof AdminUserManagementUserIdEditRouteImport
+      parentRoute: typeof AdminRoute
     }
   }
 }
@@ -634,6 +755,10 @@ interface AdminRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUserManagementRoute: typeof AdminUserManagementRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminEmergencyLogsAlertIdRoute: typeof AdminEmergencyLogsAlertIdRoute
+  AdminLiveMonitoringAlertIdRoute: typeof AdminLiveMonitoringAlertIdRoute
+  AdminUserManagementUserIdEditRoute: typeof AdminUserManagementUserIdEditRoute
+  AdminUserManagementUserIdViewRoute: typeof AdminUserManagementUserIdViewRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -642,6 +767,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUserManagementRoute: AdminUserManagementRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminEmergencyLogsAlertIdRoute: AdminEmergencyLogsAlertIdRoute,
+  AdminLiveMonitoringAlertIdRoute: AdminLiveMonitoringAlertIdRoute,
+  AdminUserManagementUserIdEditRoute: AdminUserManagementUserIdEditRoute,
+  AdminUserManagementUserIdViewRoute: AdminUserManagementUserIdViewRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -650,7 +779,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddFirstContactRoute: AddFirstContactRoute,
   AdminRoute: AdminRouteWithChildren,
-  AdminLoginRoute: AdminLoginRoute,
   ContactsRoute: ContactsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
@@ -671,7 +799,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   ContactsAddRoute: ContactsAddRoute,
   ProfileEditRoute: ProfileEditRoute,
+  TestGpsAlertIdRoute: TestGpsAlertIdRoute,
+  TestTrackingAlertIdRoute: TestTrackingAlertIdRoute,
   ContactsEditContactIdRoute: ContactsEditContactIdRoute,
+  TrackAlertIdTrackingTokenRoute: TrackAlertIdTrackingTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

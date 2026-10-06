@@ -260,8 +260,8 @@ function PermissionRow({
         }`}
       >
         <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-            enabled ? "translate-x-5" : "translate-x-1"
+          className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-200 ${
+            enabled ? "translate-x-5" : "translate-x-0"
           }`}
         />
       </button>
