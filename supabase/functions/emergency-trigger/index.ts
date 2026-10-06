@@ -33,20 +33,10 @@ interface TriggerSession {
   purpose: "test" | "emergency";
 }
 
-interface MoolreResponse {
-  status?: number;
-  code?: string;
-  message?: string;
-  data?: unknown;
-  go?: unknown;
-}
-
 Deno.serve(async (req) => {
-  /*
-   * =========================================================
-   * CORS
-   * =========================================================
-   */
+  // =========================================================
+  // CORS
+  // =========================================================
 
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -55,11 +45,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    /*
-     * =========================================================
-     * 1. Read request body safely
-     * =========================================================
-     */
+    // =========================================================
+    // 1. Read request body
+    // =========================================================
 
     let body: EmergencyRequestBody;
 
@@ -82,39 +70,27 @@ Deno.serve(async (req) => {
 
     const { token, latitude, longitude, address, trigger_source } = body;
 
-    /*
-     * =========================================================
-     * 2. Create service-role Supabase client
-     * =========================================================
-     */
+    // =========================================================
+    // 2. Supabase service-role client
+    // =========================================================
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    /*
-     * =========================================================
-     * 3. Determine trigger type
-     *
-     * APP:
-     *   Authenticated Supabase user
-     *
-     * SHORTCUT:
-     *   Shortcut token
-     * =========================================================
-     */
+    // =========================================================
+    // 3. Determine trigger type
+    // =========================================================
 
     let userId: string;
     let purpose: "test" | "emergency" = "emergency";
     let session: TriggerSession | null = null;
     let shortcutToken: ShortcutToken | null = null;
 
-    /*
-     * =========================================================
-     * APP TRIGGER
-     * =========================================================
-     */
+    // =========================================================
+    // APP TRIGGER
+    // =========================================================
 
     if (trigger_source === "app") {
       const authorization = req.headers.get("Authorization");
@@ -162,11 +138,9 @@ Deno.serve(async (req) => {
         user_id: userId,
       });
     } else {
-      /*
-       * =========================================================
-       * SHORTCUT TRIGGER
-       * =========================================================
-       */
+      // =========================================================
+      // SHORTCUT TRIGGER
+      // =========================================================
 
       if (!token) {
         return new Response(
@@ -183,11 +157,9 @@ Deno.serve(async (req) => {
         );
       }
 
-      /*
-       * -------------------------------------------------------
-       * Find shortcut token
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Find shortcut token
+      // ---------------------------------------------------------
 
       const { data: foundShortcutToken, error: tokenError } = await supabase
         .from("shortcut_tokens")
@@ -212,11 +184,9 @@ Deno.serve(async (req) => {
 
       shortcutToken = foundShortcutToken as ShortcutToken;
 
-      /*
-       * -------------------------------------------------------
-       * Determine test vs emergency
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Determine test vs emergency
+      // ---------------------------------------------------------
 
       const isActiveToken = shortcutToken.active === true;
 
@@ -241,20 +211,16 @@ Deno.serve(async (req) => {
 
       userId = shortcutToken.user_id;
 
-      /*
-       * -------------------------------------------------------
-       * Current time
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Current time
+      // ---------------------------------------------------------
 
       const now = new Date();
       const nowISOString = now.toISOString();
 
-      /*
-       * -------------------------------------------------------
-       * Find pending session
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Find pending session
+      // ---------------------------------------------------------
 
       const { data: existingSession, error: sessionError } = await supabase
         .from("shortcut_trigger_sessions")
@@ -262,7 +228,9 @@ Deno.serve(async (req) => {
         .eq("user_id", shortcutToken.user_id)
         .eq("purpose", purpose)
         .eq("status", "pending")
-        .order("created_at", { ascending: false })
+        .order("created_at", {
+          ascending: false,
+        })
         .limit(1)
         .maybeSingle();
 
@@ -270,11 +238,9 @@ Deno.serve(async (req) => {
         throw sessionError;
       }
 
-      /*
-       * -------------------------------------------------------
-       * Handle existing session
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Handle existing session
+      // ---------------------------------------------------------
 
       if (existingSession) {
         const typedExistingSession = existingSession as TriggerSession;
@@ -282,9 +248,7 @@ Deno.serve(async (req) => {
         const expiresAt = new Date(typedExistingSession.expires_at);
 
         if (now >= expiresAt) {
-          /*
-           * Expire old session.
-           */
+          // Expire old session
 
           const { error: expireError } = await supabase
             .from("shortcut_trigger_sessions")
@@ -298,9 +262,7 @@ Deno.serve(async (req) => {
             throw expireError;
           }
 
-          /*
-           * Start new session.
-           */
+          // Start new session
 
           const newExpiresAt = new Date(now.getTime() + 20 * 1000);
 
@@ -324,9 +286,7 @@ Deno.serve(async (req) => {
 
           session = newSession as TriggerSession;
         } else {
-          /*
-           * Existing session still active.
-           */
+          // Existing session still active
 
           const newTriggerCount = typedExistingSession.trigger_count + 1;
 
@@ -351,11 +311,9 @@ Deno.serve(async (req) => {
           session = updatedSession as TriggerSession;
         }
       } else {
-        /*
-         * -------------------------------------------------------
-         * No existing session.
-         * -------------------------------------------------------
-         */
+        // -------------------------------------------------------
+        // No existing session
+        // -------------------------------------------------------
 
         const expiresAt = new Date(now.getTime() + 20 * 1000);
 
@@ -384,11 +342,9 @@ Deno.serve(async (req) => {
         throw new Error("Failed to create or retrieve trigger session.");
       }
 
-      /*
-       * -------------------------------------------------------
-       * Shortcut session not complete
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Shortcut session not complete
+      // ---------------------------------------------------------
 
       if (session.status !== "completed") {
         return new Response(
@@ -412,11 +368,9 @@ Deno.serve(async (req) => {
         );
       }
 
-      /*
-       * -------------------------------------------------------
-       * Onboarding test completed
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Onboarding test completed
+      // ---------------------------------------------------------
 
       if (purpose === "test") {
         const { error: tokenUpdateError } = await supabase
@@ -452,11 +406,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    /*
-     * =========================================================
-     * COMMON REAL EMERGENCY PROCESSING
-     * =========================================================
-     */
+    // =========================================================
+    // COMMON REAL EMERGENCY PROCESSING
+    // =========================================================
 
     console.log("PROCESSING REAL EMERGENCY:", {
       user_id: userId,
@@ -468,11 +420,9 @@ Deno.serve(async (req) => {
 
     const actualTriggerSource = trigger_source === "app" ? "app" : "shortcut";
 
-    /*
-     * =========================================================
-     * 4. Location
-     * =========================================================
-     */
+    // =========================================================
+    // 4. Location
+    // =========================================================
 
     const locationData = {
       latitude: latitude ?? null,
@@ -480,11 +430,9 @@ Deno.serve(async (req) => {
       address: address ?? null,
     };
 
-    /*
-     * =========================================================
-     * 5. Create SOS alert
-     * =========================================================
-     */
+    // =========================================================
+    // 5. Create SOS alert
+    // =========================================================
 
     const { data: alert, error: alertError } = await supabase
       .from("sos_alerts")
@@ -509,11 +457,21 @@ Deno.serve(async (req) => {
       user_id: userId,
     });
 
-    /*
-     * =========================================================
-     * 6. Create in-app notification
-     * =========================================================
-     */
+    // =========================================================
+    // 5B. Tracking URL
+    // =========================================================
+    //
+    // A separate tracking URL will be created for every
+    // emergency contact below.
+    //
+    // We intentionally do NOT create one shared tracking URL
+    // here because each contact can have different sharing
+    // permissions.
+    // =========================================================
+
+    // =========================================================
+    // 6. Create in-app notification
+    // =========================================================
 
     const { error: notificationError } = await supabase.from("notifications").insert({
       user_id: userId,
@@ -527,11 +485,9 @@ Deno.serve(async (req) => {
       console.error("Failed to create emergency notification:", notificationError);
     }
 
-    /*
-     * =========================================================
-     * 7. Get emergency contacts
-     * =========================================================
-     */
+    // =========================================================
+    // 7. Get emergency contacts
+    // =========================================================
 
     const { data: contacts, error: contactsError } = await supabase
       .from("emergency_contact")
@@ -547,20 +503,16 @@ Deno.serve(async (req) => {
       throw contactsError;
     }
 
-    /*
-     * =========================================================
-     * 8. Process contacts
-     * =========================================================
-     */
+    // =========================================================
+    // 8. Process contacts
+    // =========================================================
 
     if (!contacts || contacts.length === 0) {
       console.error("Emergency alert created, but the user has no emergency contacts.");
     } else {
-      /*
-       * -------------------------------------------------------
-       * Get user profile
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Get user profile
+      // ---------------------------------------------------------
 
       const { data: profile, error: profileError } = await supabase
         .from("user_profile")
@@ -574,89 +526,72 @@ Deno.serve(async (req) => {
         throw profileError;
       }
 
-      /*
-       * -------------------------------------------------------
-       * Process every emergency contact
-       * -------------------------------------------------------
-       */
+      // ---------------------------------------------------------
+      // Get Arkesel credentials once
+      // ---------------------------------------------------------
+
+      const arkeselApiKey = Deno.env.get("ARKESEL_API_KEY");
+
+      const arkeselSenderId = Deno.env.get("ARKESEL_SENDER_ID");
+
+      if (!arkeselApiKey) {
+        throw new Error("ARKESEL_API_KEY is not configured.");
+      }
+
+      if (!arkeselSenderId) {
+        throw new Error("ARKESEL_SENDER_ID is not configured.");
+      }
+
+      // ---------------------------------------------------------
+      // Build victim name once
+      // ---------------------------------------------------------
+
+      const victimName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim();
+
+      // ---------------------------------------------------------
+      // Process every emergency contact
+      // ---------------------------------------------------------
 
       for (const contact of contacts) {
-        /*
-         * =====================================================
-         * Build personal information
-         * =====================================================
-         */
+        // =======================================================
+        // Generate a unique tracking token for this contact
+        // =======================================================
 
-        const personalInformation = contact.share_personal_info
-          ? [
-              profile?.first_name,
-              profile?.last_name,
-              profile?.other_names,
-              profile?.phone,
-              profile?.DOB,
-              profile?.country,
-              profile?.gender,
-              profile?.profession,
-              profile?.address,
-            ]
-              .filter(Boolean)
-              .join(", ")
-          : null;
+        const trackingToken = crypto.randomUUID();
 
-        /*
-         * =====================================================
-         * Build medical information
-         * =====================================================
-         */
+        const trackingUrl = `http://172.20.10.3:5173/track/${alert.id}/${trackingToken}`;
 
-        const medicalInformation = contact.share_medical_info
-          ? [
-              profile?.blood_type ? `Blood type: ${profile.blood_type}` : null,
+        console.log("CONTACT-SPECIFIC TRACKING LINK:", {
+          alert_id: alert.id,
+          contact_id: contact.contact_id,
+          contact: contact.name,
+          tracking_url: trackingUrl,
+          share_medical_info: contact.share_medical_info,
+          share_personal_info: contact.share_personal_info,
+        });
 
-              profile?.allergies ? `Allergies: ${profile.allergies}` : null,
+        // =======================================================
+        // Prepare SMS
+        // =======================================================
 
-              profile?.health_conditions ? `Health conditions: ${profile.health_conditions}` : null,
-            ]
-              .filter(Boolean)
-              .join(", ")
-          : null;
-
-        /*
-         * =====================================================
-         * Build final personalized SMS
-         * =====================================================
-         */
-
-        const messageParts = [
+        const emergencyMessage = [
           "EMERGENCY ALERT",
-          "An emergency alert has been activated.",
-
-          locationData.latitude !== null && locationData.longitude !== null
-            ? `Location: ${locationData.latitude}, ${locationData.longitude}`
-            : null,
-
-          locationData.address ? `Address: ${locationData.address}` : null,
-
-          personalInformation ? `Personal information: ${personalInformation}` : null,
-
-          medicalInformation ? `Medical information: ${medicalInformation}` : null,
-        ].filter(Boolean);
-
-        const emergencyMessage = messageParts.join("\n");
+          `${victimName || "Your emergency contact"} needs help.`,
+          "",
+          `Track their live location: ${trackingUrl}`,
+        ].join("\n");
 
         console.log("PREPARED EMERGENCY DELIVERY:", {
           contact: contact.name,
-          phone: contact.phone,
-          share_personal_info: contact.share_personal_info,
-          share_medical_info: contact.share_medical_info,
+          original_phone: contact.phone,
+          message_length: emergencyMessage.length,
+          tracking_url: trackingUrl,
           message: emergencyMessage,
         });
 
-        /*
-         * =====================================================
-         * 9. Create alert_deliveries record
-         * =====================================================
-         */
+        // =======================================================
+        // 9. Create alert_deliveries record
+        // =======================================================
 
         const { data: delivery, error: deliveryError } = await supabase
           .from("alert_deliveries")
@@ -665,6 +600,7 @@ Deno.serve(async (req) => {
             contact_id: contact.contact_id,
             phone: contact.phone,
             message: emergencyMessage,
+            tracking_token: trackingToken,
             status: "pending",
           })
           .select()
@@ -673,167 +609,95 @@ Deno.serve(async (req) => {
         if (deliveryError) {
           console.error(`Failed to create delivery record for ${contact.name}:`, deliveryError);
 
-          /*
-           * Don't stop the emergency because one
-           * delivery record failed.
-           */
-
           continue;
         }
 
-        /*
-         * =====================================================
-         * 10. Get Moolre credentials
-         * =====================================================
-         */
+        // =======================================================
+        // 10. Send SMS through Arkesel legacy API
+        // =======================================================
 
-        const moolreVasKey = Deno.env.get("MOOLRE_VAS_KEY");
+        try {
+          const params = new URLSearchParams({
+            action: "send-sms",
+            api_key: arkeselApiKey,
+            to: contact.phone,
+            from: arkeselSenderId,
+            sms: emergencyMessage,
+          });
 
-        const moolreSenderId = Deno.env.get("MOOLRE_SENDER_ID");
+          const smsStartedAt = Date.now();
 
-        if (!moolreVasKey || !moolreSenderId) {
-          const errorMessage = "Moolre credentials are not configured.";
+          const arkeselResponse = await fetch(
+            `https://sms.arkesel.com/sms/api?${params.toString()}`,
+            {
+              method: "GET",
+            },
+          );
 
-          console.error(errorMessage);
+          const smsFinishedAt = Date.now();
 
-          await supabase
+          const arkeselResponseText = await arkeselResponse.text();
+
+          console.log("ARKESEL HTTP STATUS:", {
+            contact: contact.name,
+            phone: contact.phone,
+            status: arkeselResponse.status,
+          });
+
+          console.log("ARKESEL RESPONSE:", {
+            contact: contact.name,
+            response: arkeselResponseText,
+          });
+
+          console.log("ARKESEL REQUEST TIMING:", {
+            contact: contact.name,
+            duration_ms: smsFinishedAt - smsStartedAt,
+          });
+
+          if (!arkeselResponse.ok) {
+            throw new Error(
+              `Arkesel request failed with HTTP ${arkeselResponse.status}: ${arkeselResponseText}`,
+            );
+          }
+
+          console.log("ARKESEL SMS REQUEST ACCEPTED:", {
+            contact: contact.name,
+            phone: contact.phone,
+            response: arkeselResponseText,
+          });
+
+          // =====================================================
+          // SMS request accepted
+          //
+          // sent_at means Street Smart successfully submitted
+          // the SMS request to Arkesel.
+          //
+          // It does NOT necessarily mean the recipient's
+          // phone has received the SMS yet.
+          // =====================================================
+
+          const sentAt = new Date().toISOString();
+
+          const { error: deliveryUpdateError } = await supabase
             .from("alert_deliveries")
             .update({
-              status: "failed",
-              error_message: errorMessage,
+              status: "sent",
+              sent_at: sentAt,
+              error_message: null,
             })
             .eq("id", delivery.id);
 
-          continue;
-        }
-
-        /*
-         * =====================================================
-         * 11. Send SMS through Moolre Sandbox
-         * =====================================================
-         *
-         * Moolre expects:
-         *
-         * type: 1
-         * senderid: approved Sender ID
-         * messages: [
-         *   {
-         *     recipient,
-         *     message
-         *   }
-         * ]
-         *
-         * =====================================================
-         */
-
-        console.log("SENDING SMS THROUGH MOOLRE:", {
-          contact: contact.name,
-          phone: contact.phone,
-        });
-
-        try {
-          const moolreResponse = await fetch("https://sandbox.moolre.com/open/sms/send", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-API-VASKEY": moolreVasKey,
-            },
-            body: JSON.stringify({
-              type: 1,
-              senderid: moolreSenderId,
-              messages: [
-                {
-                  recipient: contact.phone,
-                  message: emergencyMessage,
-                },
-              ],
-            }),
-          });
-
-          // const moolreData = (await moolreResponse.json()) as MoolreResponse;
-          const responseText = await moolreResponse.text();
-
-          console.log("MOOLRE RAW RESPONSE:", {
-            status: moolreResponse.status,
-            response: responseText,
-          });
-
-          let moolreResult;
-
-          try {
-            moolreResult = JSON.parse(responseText);
-          } catch {
-            throw new Error(
-              `Moolre returned a non-JSON response (HTTP ${moolreResponse.status}): ${responseText}`,
+          if (deliveryUpdateError) {
+            console.error(
+              `Failed to update delivery status for ${contact.name}:`,
+              deliveryUpdateError,
             );
           }
-          console.log("MOOLRE RESPONSE:", {
-            contact: contact.name,
-            phone: contact.phone,
-            http_status: moolreResponse.status,
-            response: moolreResult,
-          });
-
-          /*
-           * Moolre uses status = 1 for successful
-           * requests.
-           */
-
-          if (moolreResponse.ok && moolreResult.status === 1) {
-            const { error: sentUpdateError } = await supabase
-              .from("alert_deliveries")
-              .update({
-                status: "sent",
-                sent_at: new Date().toISOString(),
-                error_message: null,
-              })
-              .eq("id", delivery.id);
-
-            if (sentUpdateError) {
-              console.error("SMS sent but delivery record could not be updated:", sentUpdateError);
-            } else {
-              console.log("SMS DELIVERY SUCCESS:", {
-                contact: contact.name,
-                phone: contact.phone,
-              });
-            }
-          } else {
-            /*
-             * Moolre rejected the request.
-             */
-
-            const moolreError =
-              moolreResult.message ?? `Moolre request failed with HTTP ${moolreResponse.status}.`;
-
-            const { error: failedUpdateError } = await supabase
-              .from("alert_deliveries")
-              .update({
-                status: "failed",
-                error_message: moolreError,
-              })
-              .eq("id", delivery.id);
-
-            if (failedUpdateError) {
-              console.error("Failed to update delivery failure:", failedUpdateError);
-            }
-
-            console.error("SMS DELIVERY FAILED:", {
-              contact: contact.name,
-              phone: contact.phone,
-              error: moolreError,
-            });
-          }
         } catch (smsError) {
-          /*
-           * Network/API error.
-           *
-           * The emergency itself remains successful.
-           */
-
           const smsErrorMessage =
-            smsError instanceof Error ? smsError.message : "Unknown SMS sending error.";
+            smsError instanceof Error ? smsError.message : "Unknown Arkesel SMS error.";
 
-          console.error("Moolre SMS request failed:", {
+          console.error("Arkesel SMS request failed:", {
             contact: contact.name,
             phone: contact.phone,
             error: smsErrorMessage,
@@ -848,33 +712,29 @@ Deno.serve(async (req) => {
             .eq("id", delivery.id);
         }
       }
-    }
 
-    /*
-     * =========================================================
-     * 12. Update shortcut token usage
-     * =========================================================
-     */
+      // =========================================================
+      // 11. Update shortcut token usage
+      // =========================================================
 
-    if (shortcutToken) {
-      const { error: tokenUpdateError } = await supabase
-        .from("shortcut_tokens")
-        .update({
-          active: true,
-          last_used: nowISOString,
-        })
-        .eq("id", shortcutToken.id);
+      if (shortcutToken) {
+        const { error: tokenUpdateError } = await supabase
+          .from("shortcut_tokens")
+          .update({
+            active: true,
+            last_used: nowISOString,
+          })
+          .eq("id", shortcutToken.id);
 
-      if (tokenUpdateError) {
-        throw tokenUpdateError;
+        if (tokenUpdateError) {
+          throw tokenUpdateError;
+        }
       }
     }
 
-    /*
-     * =========================================================
-     * 13. Successful emergency response
-     * =========================================================
-     */
+    // =========================================================
+    // 12. Successful emergency response
+    // =========================================================
 
     return new Response(
       JSON.stringify({
