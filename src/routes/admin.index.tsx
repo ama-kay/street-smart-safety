@@ -14,7 +14,7 @@ import {
   type AdminDashboardStats,
   type RecentAlert,
 } from "@/services/adminService";
-import { supabase } from "@/lib/supabase";
+// import { supabase } from "@/lib/supabase";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning-soft text-warning",
@@ -28,10 +28,10 @@ export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
 });
 
-const { data, error } = await supabase.rpc("is_admin");
+// const { data, error } = await supabase.rpc("is_admin");
 
-console.log("is admin:", data);
-console.log("error:", error);
+// console.log("is admin:", data);
+// console.log("error:", error);
 
 export default function AdminDashboard() {
   const [stats, setStats] =
