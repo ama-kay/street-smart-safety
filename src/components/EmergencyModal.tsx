@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { stopEmergencyTracking } from "@/services/trackingService";
+import {
+  stopEmergencyTracking,
+  subscribeToTracking,
+  type TrackingState,
+} from "@/services/trackingService";
 
 type ActiveEmergency = {
   id: string;
@@ -16,6 +20,38 @@ export function EmergencyModal() {
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
 
+  const [tracking, setTracking] = useState<TrackingState>({
+    status: "inactive",
+    alertId: null,
+    latitude: null,
+    longitude: null,
+    accuracy: null,
+    lastUpdate: null,
+    updateCount: 0,
+    message: "Live tracking is inactive.",
+  });
+
+  /*
+   * Subscribe to the victim-side GPS tracking service.
+   *
+   * The tracking service runs independently from this modal.
+   * This allows tracking to continue even when the trigger
+   * page has been unmounted.
+   */
+  useEffect(() => {
+    const unsubscribe = subscribeToTracking((state) => {
+      setTracking(state);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  /*
+   * Check whether the user already has an active emergency.
+   *
+   * This also means the emergency lock can reappear after
+   * refreshing the page while the emergency is still active.
+   */
   useEffect(() => {
     let mounted = true;
 
@@ -42,10 +78,15 @@ export function EmergencyModal() {
           .maybeSingle();
 
         if (error) {
-          console.error("Failed to check active emergency:", error);
+          console.error(
+            "Failed to check active emergency:",
+            error,
+          );
 
           if (mounted) {
-            setError("Unable to check emergency status.");
+            setError(
+              "Unable to check emergency status.",
+            );
           }
 
           return;
@@ -55,10 +96,15 @@ export function EmergencyModal() {
           setEmergency(data);
         }
       } catch (err) {
-        console.error("Active emergency check failed:", err);
+        console.error(
+          "Active emergency check failed:",
+          err,
+        );
 
         if (mounted) {
-          setError("Unable to check emergency status.");
+          setError(
+            "Unable to check emergency status.",
+          );
         }
       } finally {
         if (mounted) {
@@ -103,24 +149,35 @@ export function EmergencyModal() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            console.log("Emergency status update:", payload);
+            console.log(
+              "Emergency status update:",
+              payload,
+            );
 
             if (!mounted) {
               return;
             }
 
             if (payload.eventType === "INSERT") {
-              const newEmergency = payload.new as ActiveEmergency;
+              const newEmergency =
+                payload.new as ActiveEmergency;
 
-              if (newEmergency.status?.toLowerCase() === "active") {
+              if (
+                newEmergency.status?.toLowerCase() ===
+                "active"
+              ) {
                 setEmergency(newEmergency);
               }
             }
 
             if (payload.eventType === "UPDATE") {
-              const updatedEmergency = payload.new as ActiveEmergency;
+              const updatedEmergency =
+                payload.new as ActiveEmergency;
 
-              if (updatedEmergency.status?.toLowerCase() === "active") {
+              if (
+                updatedEmergency.status?.toLowerCase() ===
+                "active"
+              ) {
                 setEmergency(updatedEmergency);
               } else {
                 setEmergency(null);
@@ -129,13 +186,17 @@ export function EmergencyModal() {
           },
         )
         .subscribe((status) => {
-          console.log("Emergency realtime subscription:", status);
+          console.log(
+            "Emergency realtime subscription:",
+            status,
+          );
         });
 
       return channel;
     }
 
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let channel: ReturnType<typeof supabase.channel> | null =
+      null;
 
     subscribeToEmergency().then((createdChannel) => {
       channel = createdChannel ?? null;
@@ -176,7 +237,11 @@ export function EmergencyModal() {
         .eq("user_id", user.id);
 
       if (error) {
-        console.error("Failed to end emergency:", error);
+        console.error(
+          "Failed to end emergency:",
+          error,
+        );
+
         throw new Error("Failed to end emergency.");
       }
 
@@ -192,9 +257,16 @@ export function EmergencyModal() {
        */
       setEmergency(null);
     } catch (err) {
-      console.error("End emergency failed:", err);
+      console.error(
+        "End emergency failed:",
+        err,
+      );
 
-      setError(err instanceof Error ? err.message : "Failed to end emergency.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to end emergency.",
+      );
     } finally {
       setEnding(false);
     }
@@ -203,6 +275,16 @@ export function EmergencyModal() {
   if (loading || !emergency) {
     return null;
   }
+
+  const trackingActive =
+    tracking.status === "active";
+
+  const trackingStarting =
+    tracking.status === "starting";
+
+  const trackingHasError =
+    tracking.status === "gps-error" ||
+    tracking.status === "supabase-error";
 
   return (
     <div
@@ -214,16 +296,23 @@ export function EmergencyModal() {
       <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl">
         <div className="flex flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <AlertTriangle className="h-8 w-8" strokeWidth={2.3} />
+            <AlertTriangle
+              className="h-8 w-8"
+              strokeWidth={2.3}
+            />
           </div>
 
-          <h2 id="emergency-modal-title" className="mt-5 text-2xl font-bold text-foreground">
+          <h2
+            id="emergency-modal-title"
+            className="mt-5 text-2xl font-bold text-foreground"
+          >
             Emergency Active
           </h2>
 
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Your emergency alert is currently active. Your emergency contacts have been notified and
-            your location is being shared.
+            Your emergency alert is currently active.
+            Your emergency contacts have been notified
+            and your location is being shared.
           </p>
         </div>
 
@@ -234,12 +323,90 @@ export function EmergencyModal() {
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-foreground">Emergency alert sent</p>
+              <p className="text-sm font-semibold text-foreground">
+                Emergency alert sent
+              </p>
 
               <p className="mt-1 text-xs text-muted-foreground">
-                Your emergency contacts can track your location while this emergency remains active.
+                Your emergency contacts can track your
+                location while this emergency remains
+                active.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* LIVE TRACKING DEBUG / STATUS */}
+        <div className="mt-4 rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-foreground">
+              Live Tracking
+            </p>
+
+            <span
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                trackingActive
+                  ? "bg-green-500/10 text-green-600"
+                  : trackingStarting
+                    ? "bg-yellow-500/10 text-yellow-600"
+                    : trackingHasError
+                      ? "bg-destructive/10 text-destructive"
+                      : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {tracking.status.toUpperCase()}
+            </span>
+          </div>
+
+          <p className="mt-2 text-xs text-muted-foreground">
+            {tracking.message}
+          </p>
+
+          <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+            <p>
+              GPS updates:{" "}
+              <span className="font-semibold text-foreground">
+                {tracking.updateCount}
+              </span>
+            </p>
+
+            <p>
+              Latitude:{" "}
+              <span className="font-mono text-foreground">
+                {tracking.latitude !== null
+                  ? tracking.latitude
+                  : "Waiting..."}
+              </span>
+            </p>
+
+            <p>
+              Longitude:{" "}
+              <span className="font-mono text-foreground">
+                {tracking.longitude !== null
+                  ? tracking.longitude
+                  : "Waiting..."}
+              </span>
+            </p>
+
+            <p>
+              Accuracy:{" "}
+              <span className="text-foreground">
+                {tracking.accuracy !== null
+                  ? `±${Math.round(tracking.accuracy)} m`
+                  : "Waiting..."}
+              </span>
+            </p>
+
+            <p>
+              Last update:{" "}
+              <span className="text-foreground">
+                {tracking.lastUpdate
+                  ? new Date(
+                      tracking.lastUpdate,
+                    ).toLocaleTimeString()
+                  : "Waiting..."}
+              </span>
+            </p>
           </div>
         </div>
 
