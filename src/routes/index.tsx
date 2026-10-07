@@ -19,7 +19,7 @@ function Welcome() {
   return (
     <MobileShell>
       <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <img src="/shieldlogo.png" alt="Street Smart logo" />
+        <img src="/shieldlogo.png" alt="Street Smart logo" className="w-16 h-16 object-contain" />
         <h1 className="mt-8 text-4xl font-bold tracking-tight">Street Smart</h1>
         <p className="mt-4 text-muted-foreground text-lg leading-relaxed max-w-xs">
           Your personal emergency safety system.

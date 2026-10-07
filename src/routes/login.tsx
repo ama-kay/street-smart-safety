@@ -41,8 +41,13 @@ function Login() {
     <MobileShell>
       <div className="flex-1 px-6 pt-16 pb-6">
         <div className="flex justify-center">
-        <img src="/shieldlogo.png" alt="Street Smart logo" />        <h1 className="mt-8 text-4xl font-bold tracking-tight">Street Smart</h1>
-        </div>
+<img
+  src="/shieldlogo.png"
+  alt="Street Smart logo"
+  className="w-16 h-16 object-contain"
+/>
+<h1 className="mt-8 text-4xl font-bold tracking-tight"></h1>
+  Street Smart        </div>
 
         <h1 className="mt-6 text-center text-2xl font-bold">
           Welcome Back
