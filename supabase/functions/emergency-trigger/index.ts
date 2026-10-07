@@ -559,7 +559,13 @@ Deno.serve(async (req) => {
 
         const trackingToken = crypto.randomUUID();
 
-        const trackingUrl = `http://172.20.10.3:5173/track/${alert.id}/${trackingToken}`;
+        const appUrl = Deno.env.get("APP_URL");
+
+        if (!appUrl) {
+          throw new Error("APP_URL is not configured.");
+        }
+
+        const trackingUrl = `${appUrl}/track/${alert.id}/${trackingToken}`;
 
         console.log("CONTACT-SPECIFIC TRACKING LINK:", {
           alert_id: alert.id,

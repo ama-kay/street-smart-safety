@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import LiveTrackingMap from "@/components/LiveTrackingMap";
@@ -49,6 +50,14 @@ type TrackingAccessResponse = {
   error?: string;
 };
 
+type RealtimeStatus =
+  | "CONNECTING"
+  | "SUBSCRIBED"
+  | "CHANNEL_ERROR"
+  | "TIMED_OUT"
+  | "CLOSED"
+  | "UNKNOWN";
+
 function TrackingPage() {
   const { alertId, trackingToken } = Route.useParams();
 
@@ -61,101 +70,223 @@ function TrackingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
+  /*
+   * Realtime diagnostic state.
+   *
+   * These values are only for testing the live tracking
+   * connection from the contact's side.
+   */
+  const [realtimeStatus, setRealtimeStatus] =
+    useState<RealtimeStatus>("CONNECTING");
 
-    async function loadEmergency() {
-      try {
-        setLoading(true);
-        setError(null);
+  const [realtimeUpdateCount, setRealtimeUpdateCount] =
+    useState(0);
 
-        const { data, error: functionError } =
-          await supabase.functions.invoke<TrackingAccessResponse>("tracking-access", {
+  const [lastRealtimeUpdate, setLastRealtimeUpdate] =
+    useState<string | null>(null);
+
+  const [lastRealtimeLatitude, setLastRealtimeLatitude] =
+    useState<number | null>(null);
+
+  const [lastRealtimeLongitude, setLastRealtimeLongitude] =
+    useState<number | null>(null);
+
+useEffect(() => {
+  let mounted = true;
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+  async function loadEmergency() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: functionError } =
+        await supabase.functions.invoke<TrackingAccessResponse>(
+          "tracking-access",
+          {
             body: {
               alertId,
               trackingToken,
             },
-          });
+          },
+        );
 
-        if (!mounted) {
-          return;
-        }
-
-        if (functionError) {
-          console.error("Tracking access function failed:", functionError);
-
-          setError("This emergency link is invalid or the emergency could not be found.");
-          setLoading(false);
-          return;
-        }
-
-        if (!data || data.error) {
-          console.error("Tracking access error:", data?.error);
-
-          setError(
-            data?.error || "This emergency link is invalid or the emergency could not be found.",
-          );
-          setLoading(false);
-          return;
-        }
-
-        console.log("TRACKING ACCESS DATA:", data);
-
-        setAlert(data.alert);
-        setVictim(data.victim);
-
-        setSharePersonalInfo(data.permissions?.share_personal_info ?? false);
-
-        setShareMedicalInfo(data.permissions?.share_medical_info ?? false);
-
-        setLoading(false);
-      } catch (loadError) {
-        console.error("Tracking page error:", loadError);
-
-        if (!mounted) {
-          return;
-        }
-
-        setError("Something went wrong while loading this emergency.");
-        setLoading(false);
+      if (!mounted) {
+        return;
       }
-    }
 
-    loadEmergency();
+      if (functionError) {
+        console.error(
+          "Tracking access function failed:",
+          functionError,
+        );
 
-    // =======================================================
-    // Listen for live emergency/location updates
-    // =======================================================
+        setError(
+          "This emergency link is invalid or the emergency could not be found.",
+        );
+        setLoading(false);
+        return;
+      }
 
-    const channel = supabase
-      .channel(`sos-tracking-${alertId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "sos_alerts",
-          filter: `id=eq.${alertId}`,
-        },
-        (payload) => {
-          console.log("Realtime location update:", payload.new);
+      if (!data || data.error) {
+        console.error(
+          "Tracking access error:",
+          data?.error,
+        );
+
+        setError(
+          data?.error ||
+            "This emergency link is invalid or the emergency could not be found.",
+        );
+        setLoading(false);
+        return;
+      }
+
+      console.log(
+        "TRACKING ACCESS DATA:",
+        data,
+      );
+
+      setAlert(data.alert);
+      setVictim(data.victim);
+
+      setSharePersonalInfo(
+        data.permissions?.share_personal_info ?? false,
+      );
+
+      setShareMedicalInfo(
+        data.permissions?.share_medical_info ?? false,
+      );
+
+      setLoading(false);
+
+      /*
+       * Poll tracking-access every 2 seconds.
+       *
+       * The Edge Function validates the tracking token
+       * before returning the emergency data.
+       */
+      pollInterval = setInterval(async () => {
+        try {
+          const { data: updatedData, error: pollError } =
+            await supabase.functions.invoke<TrackingAccessResponse>(
+              "tracking-access",
+              {
+                body: {
+                  alertId,
+                  trackingToken,
+                },
+              },
+            );
 
           if (!mounted) {
             return;
           }
 
-          setAlert(payload.new as Alert);
-        },
-      )
-      .subscribe((status) => {
-        console.log("Realtime subscription:", status);
-      });
+          if (pollError) {
+            console.error(
+              "Tracking poll failed:",
+              pollError,
+            );
+            return;
+          }
 
-    return () => {
-      mounted = false;
-      supabase.removeChannel(channel);
-    };
-  }, [alertId, trackingToken]);
+          if (!updatedData || updatedData.error) {
+            console.error(
+              "Tracking poll error:",
+              updatedData?.error,
+            );
+            return;
+          }
+
+          const updatedAlert =
+            updatedData.alert;
+
+            if (updatedAlert.status?.toLowerCase() !== "active") {
+              setAlert(updatedAlert);
+
+              if (pollInterval !== null) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+              }
+
+              return;
+            }
+
+          setAlert(updatedAlert);
+
+          setVictim(updatedData.victim);
+
+          setSharePersonalInfo(
+            updatedData.permissions?.share_personal_info ??
+              false,
+          );
+
+          setShareMedicalInfo(
+            updatedData.permissions?.share_medical_info ??
+              false,
+          );
+
+          /*
+           * Diagnostic information.
+           *
+           * Since we're no longer using Realtime,
+           * these values represent successful polling
+           * responses instead.
+           */
+          const latitude =
+            updatedAlert.latitude ?? null;
+
+          const longitude =
+            updatedAlert.longitude ?? null;
+
+          setRealtimeUpdateCount(
+            (previousCount) =>
+              previousCount + 1,
+          );
+
+          setLastRealtimeUpdate(
+            new Date().toISOString(),
+          );
+
+          setLastRealtimeLatitude(latitude);
+          setLastRealtimeLongitude(longitude);
+
+          setRealtimeStatus("SUBSCRIBED");
+        } catch (pollError) {
+          console.error(
+            "Tracking polling error:",
+            pollError,
+          );
+        }
+      }, 2000);
+    } catch (loadError) {
+      console.error(
+        "Tracking page error:",
+        loadError,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setError(
+        "Something went wrong while loading this emergency.",
+      );
+      setLoading(false);
+    }
+  }
+
+  loadEmergency();
+
+  return () => {
+    mounted = false;
+
+    if (pollInterval !== null) {
+      clearInterval(pollInterval);
+    }
+  };
+}, [alertId, trackingToken]);
 
   // =========================================================
   // Loading state
@@ -163,8 +294,10 @@ function TrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <p className="text-gray-600">Loading emergency...</p>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <p className="text-gray-600">
+          Loading emergency...
+        </p>
       </div>
     );
   }
@@ -175,16 +308,21 @@ function TrackingPage() {
 
   if (error || !alert) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-            <span className="text-2xl">⚠️</span>
+            <span className="text-2xl">
+              ⚠️
+            </span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900">Tracking Unavailable</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Tracking Unavailable
+          </h1>
 
           <p className="mt-3 text-gray-600">
-            {error || "This emergency link is invalid or the emergency no longer exists."}
+            {error ||
+              "This emergency link is invalid or the emergency no longer exists."}
           </p>
         </div>
       </div>
@@ -196,7 +334,8 @@ function TrackingPage() {
   // =========================================================
 
   const isActive =
-    alert.status?.toLowerCase() === "active" || alert.status?.toLowerCase() === "pending";
+    alert.status?.toLowerCase() === "active" ||
+    alert.status?.toLowerCase() === "pending";
 
   // =========================================================
   // Victim information
@@ -204,28 +343,39 @@ function TrackingPage() {
 
   // Name and phone are ALWAYS visible.
   const victimName = victim
-    ? [victim.first_name, victim.other_names, victim.last_name].filter(Boolean).join(" ")
+    ? [
+        victim.first_name,
+        victim.other_names,
+        victim.last_name,
+      ]
+        .filter(Boolean)
+        .join(" ")
     : "Unknown";
 
-  const victimPhone = victim?.phone || "Phone number unavailable";
+  const victimPhone =
+    victim?.phone ||
+    "Phone number unavailable";
 
   // =========================================================
   // Additional personal information
   // =========================================================
 
-  const showPersonalInformation = sharePersonalInfo;
+  const showPersonalInformation =
+    sharePersonalInfo;
 
-  const showAvatar = showPersonalInformation && Boolean(victim?.avatar_url);
+  const showAvatar =
+    showPersonalInformation &&
+    Boolean(victim?.avatar_url);
 
   const hasAdditionalPersonalInformation =
     showPersonalInformation &&
     Boolean(
       victim?.email ||
-      victim?.DOB ||
-      victim?.country ||
-      victim?.gender ||
-      victim?.profession ||
-      victim?.address,
+        victim?.DOB ||
+        victim?.country ||
+        victim?.gender ||
+        victim?.profession ||
+        victim?.address,
     );
 
   // =========================================================
@@ -234,11 +384,27 @@ function TrackingPage() {
 
   const hasMedicalInformation =
     shareMedicalInfo &&
-    Boolean(victim?.blood_type || victim?.allergies || victim?.health_conditions);
+    Boolean(
+      victim?.blood_type ||
+        victim?.allergies ||
+        victim?.health_conditions,
+    );
+
+  // =========================================================
+  // Tracking status styling
+  // =========================================================
+
+  const realtimeStatusClass =
+    realtimeStatus === "SUBSCRIBED"
+      ? "bg-green-100 text-green-700"
+      : realtimeStatus === "CONNECTING"
+        ? "bg-yellow-100 text-yellow-700"
+        : "bg-red-100 text-red-700";
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
       <div className="mx-auto w-full max-w-md space-y-4">
+
         {/* ================================================= */}
         {/* Emergency Header */}
         {/* ================================================= */}
@@ -246,27 +412,39 @@ function TrackingPage() {
         <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
           <div
             className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
-              isActive ? "bg-red-100" : "bg-gray-100"
+              isActive
+                ? "bg-red-100"
+                : "bg-gray-100"
             }`}
           >
-            <span className="text-2xl">{isActive ? "🚨" : "ℹ️"}</span>
+            <span className="text-2xl">
+              {isActive ? "🚨" : "ℹ️"}
+            </span>
           </div>
 
           <h1 className="mt-4 text-2xl font-bold text-gray-900">
-            {isActive ? "Emergency Active" : "Emergency"}
+            {isActive
+              ? "Emergency Active"
+              : "Emergency"}
           </h1>
 
           <p className="mt-2 text-sm text-gray-600">
             {isActive
               ? "An emergency alert has been activated."
-              : `Emergency status: ${alert.status ?? "Unknown"}`}
+              : `Emergency status: ${
+                  alert.status ?? "Unknown"
+                }`}
           </p>
 
           <div className="mt-4 rounded-lg bg-gray-50 p-3 text-left">
-            <p className="text-xs text-gray-500">Emergency Started</p>
+            <p className="text-xs text-gray-500">
+              Emergency Started
+            </p>
 
             <p className="mt-1 text-sm font-medium text-gray-800">
-              {new Date(alert.created_at).toLocaleString()}
+              {new Date(
+                alert.created_at,
+              ).toLocaleString()}
             </p>
           </div>
         </div>
@@ -276,35 +454,47 @@ function TrackingPage() {
         {/* ================================================= */}
 
         <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">Person in Emergency</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            Person in Emergency
+          </h2>
 
           <div className="mt-4 space-y-4">
+
             {/* Profile Photo */}
 
-            {showAvatar && victim?.avatar_url && (
-              <div className="flex justify-center">
-                <img
-                  src={victim.avatar_url}
-                  alt={victimName}
-                  className="h-20 w-20 rounded-full object-cover"
-                />
-              </div>
-            )}
+            {showAvatar &&
+              victim?.avatar_url && (
+                <div className="flex justify-center">
+                  <img
+                    src={victim.avatar_url}
+                    alt={victimName}
+                    className="h-20 w-20 rounded-full object-cover"
+                  />
+                </div>
+              )}
 
             {/* Name - ALWAYS SHOWN */}
 
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Name</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                Name
+              </p>
 
-              <p className="mt-1 text-base font-semibold text-gray-900">{victimName}</p>
+              <p className="mt-1 text-base font-semibold text-gray-900">
+                {victimName}
+              </p>
             </div>
 
             {/* Phone - ALWAYS SHOWN */}
 
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Phone</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                Phone
+              </p>
 
-              <p className="mt-1 text-sm text-gray-800">{victimPhone}</p>
+              <p className="mt-1 text-sm text-gray-800">
+                {victimPhone}
+              </p>
             </div>
 
             {/* ================================================= */}
@@ -313,16 +503,23 @@ function TrackingPage() {
 
             {hasAdditionalPersonalInformation && (
               <div className="border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-semibold text-gray-800">Personal Information</h3>
+                <h3 className="text-sm font-semibold text-gray-800">
+                  Personal Information
+                </h3>
 
                 <div className="mt-3 space-y-3">
+
                   {/* Email */}
 
                   {victim?.email && (
                     <div>
-                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="text-xs text-gray-500">
+                        Email
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.email}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.email}
+                      </p>
                     </div>
                   )}
 
@@ -330,9 +527,13 @@ function TrackingPage() {
 
                   {victim?.DOB && (
                     <div>
-                      <p className="text-xs text-gray-500">Date of Birth</p>
+                      <p className="text-xs text-gray-500">
+                        Date of Birth
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.DOB}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.DOB}
+                      </p>
                     </div>
                   )}
 
@@ -340,9 +541,13 @@ function TrackingPage() {
 
                   {victim?.gender && (
                     <div>
-                      <p className="text-xs text-gray-500">Gender</p>
+                      <p className="text-xs text-gray-500">
+                        Gender
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.gender}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.gender}
+                      </p>
                     </div>
                   )}
 
@@ -350,9 +555,13 @@ function TrackingPage() {
 
                   {victim?.country && (
                     <div>
-                      <p className="text-xs text-gray-500">Country</p>
+                      <p className="text-xs text-gray-500">
+                        Country
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.country}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.country}
+                      </p>
                     </div>
                   )}
 
@@ -360,9 +569,13 @@ function TrackingPage() {
 
                   {victim?.profession && (
                     <div>
-                      <p className="text-xs text-gray-500">Profession</p>
+                      <p className="text-xs text-gray-500">
+                        Profession
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.profession}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.profession}
+                      </p>
                     </div>
                   )}
 
@@ -370,9 +583,13 @@ function TrackingPage() {
 
                   {victim?.address && (
                     <div>
-                      <p className="text-xs text-gray-500">Address</p>
+                      <p className="text-xs text-gray-500">
+                        Address
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.address}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.address}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -385,16 +602,23 @@ function TrackingPage() {
 
             {hasMedicalInformation && (
               <div className="border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-semibold text-gray-800">Medical Information</h3>
+                <h3 className="text-sm font-semibold text-gray-800">
+                  Medical Information
+                </h3>
 
                 <div className="mt-3 space-y-3">
+
                   {/* Blood Type */}
 
                   {victim?.blood_type && (
                     <div>
-                      <p className="text-xs text-gray-500">Blood Type</p>
+                      <p className="text-xs text-gray-500">
+                        Blood Type
+                      </p>
 
-                      <p className="mt-1 text-sm font-medium text-gray-800">{victim.blood_type}</p>
+                      <p className="mt-1 text-sm font-medium text-gray-800">
+                        {victim.blood_type}
+                      </p>
                     </div>
                   )}
 
@@ -402,9 +626,13 @@ function TrackingPage() {
 
                   {victim?.allergies && (
                     <div>
-                      <p className="text-xs text-gray-500">Allergies</p>
+                      <p className="text-xs text-gray-500">
+                        Allergies
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.allergies}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.allergies}
+                      </p>
                     </div>
                   )}
 
@@ -412,9 +640,13 @@ function TrackingPage() {
 
                   {victim?.health_conditions && (
                     <div>
-                      <p className="text-xs text-gray-500">Health Conditions</p>
+                      <p className="text-xs text-gray-500">
+                        Health Conditions
+                      </p>
 
-                      <p className="mt-1 text-sm text-gray-800">{victim.health_conditions}</p>
+                      <p className="mt-1 text-sm text-gray-800">
+                        {victim.health_conditions}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -428,37 +660,138 @@ function TrackingPage() {
         {/* ================================================= */}
 
         <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">Live Location</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            Live Location
+          </h2>
 
-          {alert.latitude !== null && alert.longitude !== null ? (
+          {alert.latitude !== null &&
+          alert.longitude !== null ? (
             <>
-              <LiveTrackingMap latitude={alert.latitude} longitude={alert.longitude} />
+              <LiveTrackingMap
+                latitude={alert.latitude}
+                longitude={alert.longitude}
+              />
 
               <div className="mt-4 rounded-lg bg-gray-50 p-4">
-                <p className="text-sm font-medium text-gray-700">Current Location</p>
+                <p className="text-sm font-medium text-gray-700">
+                  Current Location
+                </p>
 
-                <p className="mt-2 text-sm text-gray-600">Latitude: {alert.latitude}</p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Latitude:{" "}
+                  {alert.latitude}
+                </p>
 
-                <p className="text-sm text-gray-600">Longitude: {alert.longitude}</p>
+                <p className="text-sm text-gray-600">
+                  Longitude:{" "}
+                  {alert.longitude}
+                </p>
 
-                {alert.location_accuracy !== null && (
+                {alert.location_accuracy !==
+                  null && (
                   <p className="mt-2 text-xs text-gray-500">
-                    Accuracy: ±{alert.location_accuracy} m
+                    Accuracy: ±
+                    {alert.location_accuracy}{" "}
+                    m
                   </p>
                 )}
 
                 {alert.location_updated_at && (
                   <p className="mt-1 text-xs text-gray-500">
-                    Updated: {new Date(alert.location_updated_at).toLocaleTimeString()}
+                    Updated:{" "}
+                    {new Date(
+                      alert.location_updated_at,
+                    ).toLocaleTimeString()}
                   </p>
                 )}
               </div>
             </>
           ) : (
             <div className="mt-4 rounded-lg bg-gray-50 p-5 text-center">
-              <p className="text-sm text-gray-600">Waiting for the victim's location...</p>
+              <p className="text-sm text-gray-600">
+                Waiting for the victim's
+                location...
+              </p>
             </div>
           )}
+
+          {/* ================================================= */}
+          {/* REALTIME TESTING PANEL */}
+          {/* ================================================= */}
+
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-gray-900">
+                Live Tracking Diagnostics
+              </p>
+
+              <span
+                className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${realtimeStatusClass}`}
+              >
+                {realtimeStatus}
+              </span>
+            </div>
+
+            <div className="mt-3 space-y-2 text-xs text-gray-700">
+              <div className="flex justify-between gap-4">
+                <span>
+                    Tracking updates received                </span>
+
+                <span className="font-bold">
+                  {realtimeUpdateCount}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span>
+                  Last update
+                </span>
+
+                <span className="text-right font-medium">
+                  {lastRealtimeUpdate
+                    ? new Date(
+                        lastRealtimeUpdate,
+                      ).toLocaleTimeString()
+                    : "Waiting..."}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span>
+                  Latest latitude
+                </span>
+
+                <span className="font-mono font-medium">
+                  {lastRealtimeLatitude !==
+                  null
+                    ? lastRealtimeLatitude
+                    : "Waiting..."}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <span>
+                  Latest longitude
+                </span>
+
+                <span className="font-mono font-medium">
+                  {lastRealtimeLongitude !==
+                  null
+                    ? lastRealtimeLongitude
+                    : "Waiting..."}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-3 border-t border-blue-200 pt-3">
+              <p className="text-[11px] leading-relaxed text-blue-800">
+                This panel is for testing the
+                connection between the victim's
+                location updates, Supabase
+                Realtime, and this tracking page.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
