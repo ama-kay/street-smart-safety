@@ -52,16 +52,21 @@ function Signup() {
       return;
     }
 
-    navigate({ to: "/add-first-contact" });
+    // Contact setup comes before device/shortcut setup.
+    navigate({
+      to: "/add-first-contact",
+    });
   };
 
   return (
     <MobileShell>
       <ScreenHeader title="Create Account" back="/login" />
+
       <div className="flex-1 px-6 pt-6 pb-6">
         <p className="text-muted-foreground text-sm">
           Set up your profile to start protecting yourself.
         </p>
+
         <form className="mt-6 space-y-4" onSubmit={handleSignup}>
           <Field
             icon={User}
@@ -69,18 +74,21 @@ function Signup() {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
           />
+
           <Field
             icon={User}
             placeholder="Last Name"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
+
           <Field
             icon={User}
             placeholder="Other Name(s)"
             value={otherNames}
             onChange={(e) => setOtherNames(e.target.value)}
           />
+
           <Field
             icon={Phone}
             type="tel"
@@ -88,6 +96,7 @@ function Signup() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
+
           <Field
             icon={Mail}
             type="email"
@@ -95,6 +104,7 @@ function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <Field
             icon={Lock}
             type="password"
@@ -102,6 +112,7 @@ function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <Field
             icon={Lock}
             type="password"
@@ -118,7 +129,9 @@ function Signup() {
             {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
+        {error && <p className="text-sm text-red-500 text-center mt-3">{error}</p>}
+
         <p className="text-center text-sm text-muted-foreground mt-8">
           Already have an account?{" "}
           <Link to="/login" className="text-primary font-semibold">
@@ -133,10 +146,13 @@ function Signup() {
 function Field({
   icon: Icon,
   ...props
-}: { icon: typeof User } & React.InputHTMLAttributes<HTMLInputElement>) {
+}: {
+  icon: typeof User;
+} & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
       <Icon className="w-5 h-5 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
+
       <input
         {...props}
         className="w-full bg-secondary border border-transparent focus:border-primary focus:bg-background rounded-xl pl-12 pr-4 py-4 text-sm outline-none transition-colors"

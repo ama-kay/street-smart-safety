@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+
 import { useEffect, useState, type ComponentType } from "react";
 
 type LiveTrackingMapProps = {
@@ -22,7 +23,6 @@ export default function LiveTrackingMap({
     let mounted = true;
 
     async function loadMap() {
-      // These packages are loaded only in the browser.
       const [{ MapContainer, Marker, Popup, TileLayer, useMap }, L] =
         await Promise.all([
           import("react-leaflet"),
@@ -54,10 +54,43 @@ export default function LiveTrackingMap({
         const map = useMap();
 
         useEffect(() => {
-          map.setView([latitude, longitude], map.getZoom());
+          map.setView(
+            [latitude, longitude],
+            map.getZoom(),
+            {
+              animate: true,
+            },
+          );
         }, [latitude, longitude, map]);
 
         return null;
+      }
+
+      function CenterButton({
+        latitude,
+        longitude,
+      }: LeafletMapProps) {
+        const map = useMap();
+
+        function centerMap() {
+          map.setView(
+            [latitude, longitude],
+            Math.max(map.getZoom(), 16),
+            {
+              animate: true,
+            },
+          );
+        }
+
+        return (
+          <button
+            type="button"
+            onClick={centerMap}
+            className="absolute right-3 top-3 z-[1000] rounded-xl bg-white px-3 py-2 text-xs font-semibold text-gray-800 shadow-md border border-gray-200 hover:bg-gray-50 active:scale-95 transition-transform"
+          >
+            Center
+          </button>
+        );
       }
 
       function Map({
@@ -65,29 +98,38 @@ export default function LiveTrackingMap({
         longitude,
       }: LeafletMapProps) {
         return (
-          <MapContainer
-            center={[latitude, longitude]}
-            zoom={16}
-            scrollWheelZoom={true}
-            className="h-[400px] w-full"
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            <Marker
-              position={[latitude, longitude]}
-              icon={markerIcon}
+          <div className="relative">
+            <MapContainer
+              center={[latitude, longitude]}
+              zoom={16}
+              scrollWheelZoom={true}
+              className="h-[400px] w-full"
             >
-              <Popup>Emergency location</Popup>
-            </Marker>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
 
-            <MapUpdater
-              latitude={latitude}
-              longitude={longitude}
-            />
-          </MapContainer>
+              <Marker
+                position={[latitude, longitude]}
+                icon={markerIcon}
+              >
+                <Popup>
+                  Emergency location
+                </Popup>
+              </Marker>
+
+              <MapUpdater
+                latitude={latitude}
+                longitude={longitude}
+              />
+
+              <CenterButton
+                latitude={latitude}
+                longitude={longitude}
+              />
+            </MapContainer>
+          </div>
         );
       }
 
@@ -97,7 +139,10 @@ export default function LiveTrackingMap({
     }
 
     loadMap().catch((error) => {
-      console.error("Failed to load Leaflet map:", error);
+      console.error(
+        "Failed to load Leaflet map:",
+        error,
+      );
     });
 
     return () => {
@@ -108,7 +153,9 @@ export default function LiveTrackingMap({
   if (!MapComponent) {
     return (
       <div className="mt-6 flex h-[400px] w-full items-center justify-center rounded-xl bg-gray-100">
-        <p className="text-sm text-gray-600">Loading map...</p>
+        <p className="text-sm text-gray-600">
+          Loading map...
+        </p>
       </div>
     );
   }

@@ -21,9 +21,8 @@ const sidebarItems = [
   { icon: Radio, label: "Live Emergencies", path: "/admin/liveMonitoring" },
   { icon: Users, label: "Users", path: "/admin/userManagement" },
   { icon: FileText, label: "Emergency Logs", path: "/admin/emergencyLogs" },
-  { icon: Settings, label: "Settings", path: "/admin/settings" },
+  // { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
-
 const AdminLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -193,7 +192,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
           </button>
 
           {/* Search */}
-          <div
+          {/* <div
             className="
               hidden sm:flex
               items-center gap-2
@@ -213,11 +212,11 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
                 w-full
               "
             />
-          </div>
+          </div> */}
 
           {/* Right side */}
           <div className="flex items-center gap-4 ml-auto">
-            <button
+            {/* <button
               className="
                 relative p-2 rounded-lg
                 hover:bg-secondary
@@ -232,7 +231,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
                   bg-emergency
                 "
               />
-            </button>
+            </button> */}
 
             <div className="flex items-center gap-2">
               <div

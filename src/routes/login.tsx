@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { loginUser } from "@/services/authServices";
 import { MobileShell } from "@/components/MobileShell";
-import { ShieldLogo } from "@/components/ShieldLogo";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -42,7 +41,7 @@ function Login() {
     <MobileShell>
       <div className="flex-1 px-6 pt-16 pb-6">
         <div className="flex justify-center">
-          <ShieldLogo size={72} />
+        <img src="/shieldlogo.png" alt="Street Smart logo" />        <h1 className="mt-8 text-4xl font-bold tracking-tight">Street Smart</h1>
         </div>
 
         <h1 className="mt-6 text-center text-2xl font-bold">

@@ -65,7 +65,7 @@ function Settings() {
 
           <Row icon={Bell} label="Notifications" to="/notifications" />
           <Row icon={Lock} label="Privacy" to="/privacy" />
-          <Row icon={HelpCircle} label="Help & Support" to="/help" />
+          {/* <Row icon={HelpCircle} label="Help & Support" to="/help" /> */}
         </div>
 
         {/* Logout */}

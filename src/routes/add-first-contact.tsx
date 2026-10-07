@@ -4,7 +4,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/MobileShell";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { Check, Contact, Phone, Trash2, UserPlus } from "lucide-react";
+import {
+  Check,
+  Contact,
+  Phone,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import {
   addEmergencyContact,
   deleteEmergencyContact,
@@ -50,19 +56,10 @@ function OnboardingAddContact() {
   const [contactPickerSupported, setContactPickerSupported] =
     useState(false);
 
-  /*
-   * Maximum number of emergency contacts allowed.
-   */
   const MAX_CONTACTS = 5;
 
-  /*
-   * At least one contact is required before continuing.
-   */
   const canContinue = contacts.length >= 1;
 
-  /*
-   * Check whether the browser supports the Contact Picker API.
-   */
   useEffect(() => {
     const supported =
       "contacts" in navigator &&
@@ -71,12 +68,6 @@ function OnboardingAddContact() {
     setContactPickerSupported(supported);
   }, []);
 
-  /*
-   * Load existing contacts.
-   *
-   * This also means that if the user leaves this page
-   * and comes back, their contacts are still there.
-   */
   useEffect(() => {
     async function loadContacts() {
       try {
@@ -105,12 +96,6 @@ function OnboardingAddContact() {
     }, 3000);
   }
 
-  /*
-   * Choose a contact from the device's contacts.
-   *
-   * This only works on browsers that support the
-   * Contact Picker API.
-   */
   async function handleChooseContact() {
     if (!contactPickerSupported) {
       showMessage(
@@ -149,17 +134,10 @@ function OnboardingAddContact() {
 
       showMessage("Contact selected.");
     } catch (err) {
-      /*
-       * The user may simply have cancelled the
-       * contact picker, so don't show an error for that.
-       */
       console.log("Contact picker closed:", err);
     }
   }
 
-  /*
-   * Add a new emergency contact.
-   */
   async function handleAddContact() {
     setError(null);
     setMessage(null);
@@ -192,13 +170,12 @@ function OnboardingAddContact() {
         phone: phone.trim(),
         relationship,
         address: "",
+        share_medical_info: false,
+        share_personal_info: false,
       });
 
       setContacts((current) => [...current, newContact]);
 
-      /*
-       * Clear the form after successfully adding.
-       */
       setName("");
       setPhone("");
       setRelationship("");
@@ -215,13 +192,6 @@ function OnboardingAddContact() {
     }
   }
 
-  /*
-   * Remove a contact.
-   *
-   * The user must always retain at least one contact
-   * if they want to continue, but they can remove one
-   * and replace it with another.
-   */
   async function handleDeleteContact(contactId: string) {
     setError(null);
     setMessage(null);
@@ -232,7 +202,9 @@ function OnboardingAddContact() {
       await deleteEmergencyContact(contactId);
 
       setContacts((current) =>
-        current.filter((contact) => contact.contact_id !== contactId),
+        current.filter(
+          (contact) => contact.contact_id !== contactId,
+        ),
       );
 
       showMessage("Emergency contact removed.");
@@ -248,10 +220,8 @@ function OnboardingAddContact() {
   }
 
   /*
-   * Continue to shortcut setup.
-   *
-   * The button is disabled until at least one
-   * emergency contact exists.
+   * At least one contact is required before
+   * the user can move on to device setup.
    */
   function handleContinue() {
     if (!canContinue) {
@@ -260,7 +230,7 @@ function OnboardingAddContact() {
     }
 
     navigate({
-      to: "/shortcut-setup",
+      to: "/setup",
     });
   }
 
@@ -338,7 +308,10 @@ function OnboardingAddContact() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-xl bg-success/15 text-success flex items-center justify-center flex-shrink-0">
-                      <Check className="w-5 h-5" strokeWidth={3} />
+                      <Check
+                        className="w-5 h-5"
+                        strokeWidth={3}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -358,7 +331,9 @@ function OnboardingAddContact() {
                     <button
                       type="button"
                       onClick={() =>
-                        handleDeleteContact(contact.contact_id)
+                        handleDeleteContact(
+                          contact.contact_id,
+                        )
                       }
                       disabled={
                         deletingId === contact.contact_id
@@ -404,9 +379,7 @@ function OnboardingAddContact() {
             >
               <Contact className="w-4 h-4" />
 
-              {contactPickerSupported
-                ? "Choose from Contacts"
-                : "Choose from Contacts"}
+              Choose from Contacts
             </button>
 
             {!contactPickerSupported && (
@@ -466,7 +439,9 @@ function OnboardingAddContact() {
                 }
                 className="mt-1 w-full bg-secondary border border-transparent focus:border-primary focus:bg-background rounded-xl px-4 py-3 text-sm outline-none transition-colors appearance-none"
               >
-                <option value="">Select relationship...</option>
+                <option value="">
+                  Select relationship...
+                </option>
 
                 {relationships.map((item) => (
                   <option key={item} value={item}>
@@ -491,7 +466,9 @@ function OnboardingAddContact() {
             >
               <UserPlus className="w-4 h-4" />
 
-              {adding ? "Adding..." : "Add Emergency Contact"}
+              {adding
+                ? "Adding..."
+                : "Add Emergency Contact"}
             </button>
           </div>
         )}

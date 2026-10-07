@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MobileShell } from "@/components/MobileShell";
-import { ShieldLogo } from "@/components/ShieldLogo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,7 +19,7 @@ function Welcome() {
   return (
     <MobileShell>
       <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <ShieldLogo size={96} />
+        <img src="/shieldlogo.png" alt="Street Smart logo" />
         <h1 className="mt-8 text-4xl font-bold tracking-tight">Street Smart</h1>
         <p className="mt-4 text-muted-foreground text-lg leading-relaxed max-w-xs">
           Your personal emergency safety system.

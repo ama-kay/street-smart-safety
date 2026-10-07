@@ -37,6 +37,8 @@ function TestShortcut() {
       return;
     }
 
+    const currentUser = user;
+
     let mounted = true;
 
     async function handleSession(session: TriggerSession) {
@@ -103,19 +105,13 @@ function TestShortcut() {
     }
 
     /*
-     * ---------------------------------------------------------
      * Check for an existing test session first.
-     *
-     * This prevents the UI from missing a session that was
-     * created before the realtime listener finished connecting.
-     * ---------------------------------------------------------
      */
-
     async function loadExistingSession() {
       const { data, error } = await supabase
         .from("shortcut_trigger_sessions")
         .select("id, user_id, trigger_count, purpose, status")
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .eq("purpose", "test")
         .in("status", ["pending", "completed"])
         .order("created_at", { ascending: false })
@@ -130,6 +126,7 @@ function TestShortcut() {
         console.error("Failed to load shortcut test session:", error);
 
         setError("Unable to load shortcut test progress.");
+
         return;
       }
 
@@ -141,13 +138,10 @@ function TestShortcut() {
     loadExistingSession();
 
     /*
-     * ---------------------------------------------------------
      * Realtime listener
-     * ---------------------------------------------------------
      */
-
     const channel = supabase
-      .channel(`shortcut-test-${user.id}`)
+      .channel(`shortcut-test-${currentUser.id}`)
       .on(
         "postgres_changes",
         {

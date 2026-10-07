@@ -84,7 +84,7 @@ function Home() {
           </p>
 
           <h1 className="text-2xl font-bold">
-            {profile?.first_name || "there"}
+            {profile?.first_name || " "}
           </h1>
         </div>
 
