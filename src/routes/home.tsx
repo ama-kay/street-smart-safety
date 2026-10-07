@@ -1,7 +1,12 @@
+/* eslint-disable prettier/prettier */
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireCompletedSetup } from "@/lib/routeGuards";
 import { useEffect, useState } from "react";
-import { getUserProfile, type UserProfile } from "@/services/profileService";
+import {
+  getUserProfile,
+  type UserProfile,
+} from "@/services/profileService";
 import { getUnreadNotificationCount } from "@/services/notificationService";
 import { MobileShell } from "@/components/MobileShell";
 import { BottomNav } from "@/components/BottomNav";
@@ -20,9 +25,26 @@ export const Route = createFileRoute("/home")({
   component: Home,
 });
 
+type OperatingSystem = "ios" | "android";
+
+function getOperatingSystem(): OperatingSystem {
+  const userAgent = navigator.userAgent;
+
+  if (/Android/i.test(userAgent)) {
+    return "android";
+  }
+
+  return "ios";
+}
+
 function Home() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [profile, setProfile] =
+    useState<UserProfile | null>(null);
+
+  const [unreadNotificationCount, setUnreadNotificationCount] =
+    useState(0);
+
+  const operatingSystem = getOperatingSystem();
 
   useEffect(() => {
     async function loadProfile() {
@@ -39,22 +61,31 @@ function Home() {
         const count = await getUnreadNotificationCount();
         setUnreadNotificationCount(count);
       } catch (error) {
-        console.error("Failed to load unread notification count:", error);
+        console.error(
+          "Failed to load unread notification count:",
+          error,
+        );
       }
     }
 
     loadUnreadNotifications();
   }, []);
 
-  const isProfileIncomplete = profile ? !isProfileComplete(profile) : false;
+  const isProfileIncomplete = profile
+    ? !isProfileComplete(profile)
+    : false;
 
   return (
     <MobileShell>
       <header className="px-6 pt-12 pb-4 flex items-center justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back,</p>
+          <p className="text-sm text-muted-foreground">
+            Welcome back,
+          </p>
 
-          <h1 className="text-2xl font-bold">{profile?.first_name || "there"}</h1>
+          <h1 className="text-2xl font-bold">
+            {profile?.first_name || "there"}
+          </h1>
         </div>
 
         <Link
@@ -70,7 +101,9 @@ function Home() {
 
           {unreadNotificationCount > 0 && (
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center border-2 border-background">
-              {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+              {unreadNotificationCount > 99
+                ? "99+"
+                : unreadNotificationCount}
             </span>
           )}
         </Link>
@@ -82,16 +115,25 @@ function Home() {
             to="/trigger"
             className="relative w-56 h-56 rounded-full bg-primary text-primary-foreground flex flex-col items-center justify-center pulse-ring shadow-emergency active:scale-95 transition-transform"
           >
-            <AlertTriangle className="w-14 h-14" strokeWidth={2.2} />
+            <AlertTriangle
+              className="w-14 h-14"
+              strokeWidth={2.2}
+            />
 
-            <span className="mt-3 font-bold text-sm tracking-wide">TRIGGER</span>
+            <span className="mt-3 font-bold text-sm tracking-wide">
+              TRIGGER
+            </span>
 
-            <span className="font-bold text-sm tracking-wide">EMERGENCY</span>
+            <span className="font-bold text-sm tracking-wide">
+              EMERGENCY
+            </span>
           </Link>
         </div>
 
         <p className="text-center text-xs text-muted-foreground -mt-2 mb-6">
-          Press or triple-tap the back of your phone
+          {operatingSystem === "android"
+            ? "Press the emergency button to send an alert."
+            : "Press or triple-tap the back of your phone"}
         </p>
 
         {isProfileIncomplete && (
@@ -104,26 +146,48 @@ function Home() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold">Complete your emergency profile</p>
-
-              <p className="text-xs text-muted-foreground mt-1">
-                Add your personal and medical details so they can be available when you need
-                emergency assistance.
+              <p className="text-sm font-semibold">
+                Complete your emergency profile
               </p>
 
-              <p className="text-xs font-semibold text-primary mt-2">Complete profile →</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Add your personal and medical details so they can be
+                available when you need emergency assistance.
+              </p>
+
+              <p className="text-xs font-semibold text-primary mt-2">
+                Complete profile →
+              </p>
             </div>
           </Link>
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <MenuCard to="/contacts" Icon={Users} label="Emergency Contacts" />
+          <MenuCard
+            to="/contacts"
+            Icon={Users}
+            label="Emergency Contacts"
+          />
 
-          <MenuCard to="/history" Icon={Clock} label="Emergency History" />
+          <MenuCard
+            to="/history"
+            Icon={Clock}
+            label="Emergency History"
+          />
 
-          <MenuCard to="/new-shortcut-token" Icon={BookOpen} label="Update Shortcut" />
+          {operatingSystem === "ios" && (
+            <MenuCard
+              to="/new-shortcut-token"
+              Icon={BookOpen}
+              label="Update Shortcut"
+            />
+          )}
 
-          <MenuCard to="/settings" Icon={Cog} label="Settings" />
+          <MenuCard
+            to="/settings"
+            Icon={Cog}
+            label="Settings"
+          />
         </div>
       </div>
 
@@ -132,7 +196,9 @@ function Home() {
   );
 }
 
-function isProfileComplete(profile: UserProfile): boolean {
+function isProfileComplete(
+  profile: UserProfile,
+): boolean {
   const requiredFields = [
     profile.first_name,
     profile.last_name,
@@ -144,7 +210,11 @@ function isProfileComplete(profile: UserProfile): boolean {
     profile.address,
   ];
 
-  return requiredFields.every((value) => typeof value === "string" && value.trim().length > 0);
+  return requiredFields.every(
+    (value) =>
+      typeof value === "string" &&
+      value.trim().length > 0,
+  );
 }
 
 function MenuCard({
@@ -152,7 +222,11 @@ function MenuCard({
   Icon,
   label,
 }: {
-  to: "/contacts" | "/history" | "/new-shortcut-token" | "/settings";
+  to:
+    | "/contacts"
+    | "/history"
+    | "/new-shortcut-token"
+    | "/settings";
   Icon: typeof Users;
   label: string;
 }) {
@@ -165,7 +239,9 @@ function MenuCard({
         <Icon className="w-5 h-5" />
       </div>
 
-      <span className="text-sm font-semibold leading-tight">{label}</span>
+      <span className="text-sm font-semibold leading-tight">
+        {label}
+      </span>
     </Link>
   );
 }

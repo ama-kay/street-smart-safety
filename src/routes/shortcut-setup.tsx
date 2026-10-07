@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Copy,
   Download,
-  Smartphone,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -25,45 +24,6 @@ export const Route = createFileRoute("/shortcut-setup")({
   beforeLoad: requireIncompleteSetup,
   component: ShortcutSetup,
 });
-
-type OperatingSystem = "ios" | "android";
-
-function getOperatingSystem(): OperatingSystem {
-  const userAgent = navigator.userAgent;
-
-  if (/Android/i.test(userAgent)) {
-    return "android";
-  }
-
-  // iOS is the default for desktop/unknown devices.
-  return "ios";
-}
-
-function getDeviceName() {
-  const userAgent = navigator.userAgent;
-
-  let device = "Desktop";
-
-  if (/iPhone|iPad|iPod/i.test(userAgent)) {
-    device = "iPhone/iPad";
-  } else if (/Android/i.test(userAgent)) {
-    device = "Android";
-  }
-
-  let browser = "Browser";
-
-  if (/Edg/i.test(userAgent)) {
-    browser = "Edge";
-  } else if (/Chrome/i.test(userAgent)) {
-    browser = "Chrome";
-  } else if (/Safari/i.test(userAgent)) {
-    browser = "Safari";
-  } else if (/Firefox/i.test(userAgent)) {
-    browser = "Firefox";
-  }
-
-  return `${device} (${browser})`;
-}
 
 const iosSetupSteps = [
   {
@@ -88,50 +48,32 @@ const iosSetupSteps = [
   },
 ];
 
-const androidSetupSteps = [
-  {
-    Icon: Smartphone,
-    title: "Install Street Smart",
-    desc: "Install the Street Smart app on your Android phone.",
-  },
-  {
-    Icon: Settings,
-    title: "Allow Required Permissions",
-    desc: "Allow the permissions required for emergency alerts and location.",
-  },
-  {
-    Icon: Smartphone,
-    title: "Enable the Emergency Trigger",
-    desc: "Open Street Smart settings and enable the available emergency trigger.",
-  },
-  {
-    Icon: Zap,
-    title: "Test Your Emergency Trigger",
-    desc: "Follow the instructions in the app to test that your emergency trigger works.",
-  },
-];
+function getDeviceName() {
+  const userAgent = navigator.userAgent;
+
+  let device = "Desktop";
+
+  if (/iPhone|iPad|iPod/i.test(userAgent)) {
+    device = "iPhone/iPad";
+  }
+
+  let browser = "Browser";
+
+  if (/Edg/i.test(userAgent)) {
+    browser = "Edge";
+  } else if (/Chrome/i.test(userAgent)) {
+    browser = "Chrome";
+  } else if (/Safari/i.test(userAgent)) {
+    browser = "Safari";
+  } else if (/Firefox/i.test(userAgent)) {
+    browser = "Firefox";
+  }
+
+  return `${device} (${browser})`;
+}
 
 function ShortcutSetup() {
-  /*
-   * Six setup steps for iOS:
-   *
-   * 1. Copy token
-   * 2. Download shortcut
-   * 3. Add token to shortcut
-   * 4. Open Settings
-   * 5. Enable Back Tap
-   * 6. Assign Emergency Shortcut
-   *
-   * Android uses the same six-step structure so that
-   * the onboarding progress system remains consistent.
-   */
-
-  const operatingSystem = getOperatingSystem();
-
-  const setupSteps =
-    operatingSystem === "android"
-      ? androidSetupSteps
-      : iosSetupSteps;
+  const setupSteps = iosSetupSteps;
 
   const [completedSteps, setCompletedSteps] = useState<boolean[]>([
     false,
@@ -145,17 +87,12 @@ function ShortcutSetup() {
   /*
    * Tracks whether the user has actually pressed
    * the Copy button.
-   *
-   * Step 1 cannot be manually checked until this
-   * becomes true.
    */
   const [hasCopiedToken, setHasCopiedToken] = useState(false);
 
   /*
    * Tracks whether the user has actually clicked
    * the Download Shortcut button.
-   *
-   * Step 2 is only relevant to iOS.
    */
   const [hasDownloadedShortcut, setHasDownloadedShortcut] =
     useState(false);
@@ -208,10 +145,6 @@ function ShortcutSetup() {
    *
    * Steps 1 and 2 are handled separately because
    * they require actual actions from the user.
-   *
-   * For Android, Step 2 is simply a confirmation
-   * step and does not require downloading the iOS
-   * shortcut.
    */
   function toggleStep(index: number) {
     /*
@@ -252,11 +185,7 @@ function ShortcutSetup() {
     /*
      * STEP 2
      *
-     * iOS:
      * Requires the shortcut to have been downloaded.
-     *
-     * Android:
-     * Only requires Step 1 to be complete.
      */
     if (index === 1) {
       if (!completedSteps[0]) {
@@ -264,10 +193,7 @@ function ShortcutSetup() {
         return;
       }
 
-      if (
-        operatingSystem === "ios" &&
-        !hasDownloadedShortcut
-      ) {
+      if (!hasDownloadedShortcut) {
         showMessage("Download the shortcut first.");
         return;
       }
@@ -397,9 +323,6 @@ function ShortcutSetup() {
 
   /*
    * Download the iOS shortcut.
-   *
-   * Android does not use the iOS .shortcut file,
-   * so this function is only used for iOS.
    */
   function handleDownloadShortcut() {
     if (!completedSteps[0]) {
@@ -435,7 +358,7 @@ function ShortcutSetup() {
       setCopied(false);
 
       /*
-       * Reset all six setup steps.
+       * Reset all setup steps.
        */
       setCompletedSteps([
         false,
@@ -463,19 +386,14 @@ function ShortcutSetup() {
   return (
     <MobileShell>
       <ScreenHeader
-        title={
-          operatingSystem === "android"
-            ? "Android Setup"
-            : "Triple Tap Setup"
-        }
+        title="Triple Tap Setup"
         back="/setup"
       />
 
       <div className="flex-1 px-6 pt-6 pb-6 overflow-y-auto">
         <p className="text-sm text-muted-foreground">
-          {operatingSystem === "android"
-            ? "Follow these steps to set up Street Smart on your Android device."
-            : "Follow these steps to enable the emergency shortcut on your iPhone."}
+          Follow these steps to enable the emergency shortcut on
+          your iPhone.
         </p>
 
         <p className="text-sm text-primary font-medium mt-3">
@@ -515,16 +433,17 @@ function ShortcutSetup() {
               </h3>
 
               <p className="text-xs text-muted-foreground mt-0.5">
-                {operatingSystem === "android"
-                  ? "You will use this token when setting up your emergency trigger."
-                  : "You will enter this token into the downloaded shortcut."}
+                You will enter this token into the downloaded
+                shortcut.
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleCopyToken}
-              disabled={loadingToken || !shortcutToken?.token}
+              disabled={
+                loadingToken || !shortcutToken?.token
+              }
               className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 rounded-lg disabled:opacity-50"
             >
               {copied ? "Copied" : "Copy"}
@@ -553,7 +472,9 @@ function ShortcutSetup() {
                 </p>
 
                 <p className="text-xs text-muted-foreground mt-1">
-                  Keep this token private. Do not share it with anyone. If you believe your token has been exposed, generate a new one.
+                  Keep this token private. Do not share it with
+                  anyone. If you believe your token has been exposed,
+                  generate a new one.
                 </p>
               </div>
 
@@ -600,272 +521,208 @@ function ShortcutSetup() {
         </div>
 
         {/* =========================================================
-            STEP 2
+            STEP 2 — DOWNLOAD SHORTCUT
         ========================================================= */}
 
-        {operatingSystem === "ios" ? (
-          <div
-            className={`mt-3 bg-card border border-border rounded-2xl p-4 shadow-card transition-opacity ${
-              !completedSteps[0] ? "opacity-50" : ""
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  completedSteps[1]
-                    ? "bg-success/15 text-success"
-                    : "bg-primary/10 text-primary"
-                }`}
-              >
-                <Download className="w-5 h-5" />
-              </div>
-
-              <div className="flex-1">
-                <div className="text-[11px] font-semibold text-muted-foreground">
-                  STEP 2
-                </div>
-
-                <h3 className="font-semibold text-sm">
-                  Download the Shortcut
-                </h3>
-
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Download the Street Smart shortcut to your iPhone.
-                </p>
-              </div>
+        <div
+          className={`mt-3 bg-card border border-border rounded-2xl p-4 shadow-card transition-opacity ${
+            !completedSteps[0] ? "opacity-50" : ""
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                completedSteps[1]
+                  ? "bg-success/15 text-success"
+                  : "bg-primary/10 text-primary"
+              }`}
+            >
+              <Download className="w-5 h-5" />
             </div>
 
-            <a
-              href="/StreetSmart.shortcut"
-              download
-              onClick={handleDownloadShortcut}
-              className={`mt-4 block w-full font-semibold rounded-xl py-3 text-center transition ${
-                completedSteps[0]
-                  ? "bg-primary text-primary-foreground shadow-emergency hover:opacity-90"
-                  : "bg-secondary text-muted-foreground pointer-events-none"
-              }`}
-            >
-              Download Shortcut
-            </a>
+            <div className="flex-1">
+              <div className="text-[11px] font-semibold text-muted-foreground">
+                STEP 2
+              </div>
 
-            <label
-              className={`mt-4 flex items-center gap-3 ${
-                !completedSteps[0] || !hasDownloadedShortcut
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={completedSteps[1]}
-                disabled={
-                  !completedSteps[0] ||
-                  !hasDownloadedShortcut
-                }
-                onChange={() => toggleStep(1)}
-                className="w-4 h-4 accent-primary disabled:opacity-50"
-              />
+              <h3 className="font-semibold text-sm">
+                Download the Shortcut
+              </h3>
 
-              <span
-                className={`text-sm font-medium ${
-                  !hasDownloadedShortcut
-                    ? "text-muted-foreground"
-                    : "text-foreground"
-                }`}
-              >
-                I have downloaded the shortcut
-              </span>
-
-              {completedSteps[1] && (
-                <Check
-                  className="w-4 h-4 text-success ml-auto"
-                  strokeWidth={3}
-                />
-              )}
-            </label>
-
-            {!hasDownloadedShortcut &&
-              completedSteps[0] && (
-                <p className="text-[11px] text-muted-foreground mt-2 ml-7">
-                  Press "Download Shortcut" before checking this step.
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Download the Street Smart shortcut to your iPhone.
+              </p>
+            </div>
           </div>
-        ) : (
-          <div
-            className={`mt-3 bg-card border border-border rounded-2xl p-4 shadow-card transition-opacity ${
-              !completedSteps[0] ? "opacity-50" : ""
+
+          <a
+            href="/StreetSmart.shortcut"
+            download
+            onClick={handleDownloadShortcut}
+            className={`mt-4 block w-full font-semibold rounded-xl py-3 text-center transition ${
+              completedSteps[0]
+                ? "bg-primary text-primary-foreground shadow-emergency hover:opacity-90"
+                : "bg-secondary text-muted-foreground pointer-events-none"
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  completedSteps[1]
-                    ? "bg-success/15 text-success"
-                    : "bg-primary/10 text-primary"
-                }`}
-              >
-                <Smartphone className="w-5 h-5" />
-              </div>
+            Download Shortcut
+          </a>
 
-              <div className="flex-1">
-                <div className="text-[11px] font-semibold text-muted-foreground">
-                  STEP 2
-                </div>
+          <label
+            className={`mt-4 flex items-center gap-3 ${
+              !completedSteps[0] ||
+              !hasDownloadedShortcut
+                ? "cursor-not-allowed"
+                : "cursor-pointer"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={completedSteps[1]}
+              disabled={
+                !completedSteps[0] ||
+                !hasDownloadedShortcut
+              }
+              onChange={() => toggleStep(1)}
+              className="w-4 h-4 accent-primary disabled:opacity-50"
+            />
 
-                <h3 className="font-semibold text-sm">
-                  Prepare Your Android Device
-                </h3>
-
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Make sure Street Smart is installed and ready for setup.
-                </p>
-              </div>
-            </div>
-
-            <label
-              className={`mt-4 flex items-center gap-3 ${
-                !completedSteps[0]
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer"
+            <span
+              className={`text-sm font-medium ${
+                !hasDownloadedShortcut
+                  ? "text-muted-foreground"
+                  : "text-foreground"
               }`}
             >
-              <input
-                type="checkbox"
-                checked={completedSteps[1]}
-                disabled={!completedSteps[0]}
-                onChange={() => toggleStep(1)}
-                className="w-4 h-4 accent-primary disabled:opacity-50"
+              I have downloaded the shortcut
+            </span>
+
+            {completedSteps[1] && (
+              <Check
+                className="w-4 h-4 text-success ml-auto"
+                strokeWidth={3}
               />
+            )}
+          </label>
 
-              <span
-                className={`text-sm font-medium ${
-                  !completedSteps[0]
-                    ? "text-muted-foreground"
-                    : "text-foreground"
-                }`}
-              >
-                My Android device is ready
-              </span>
-
-              {completedSteps[1] && (
-                <Check
-                  className="w-4 h-4 text-success ml-auto"
-                  strokeWidth={3}
-                />
-              )}
-            </label>
-          </div>
-        )}
+          {!hasDownloadedShortcut &&
+            completedSteps[0] && (
+              <p className="text-[11px] text-muted-foreground mt-2 ml-7">
+                Press "Download Shortcut" before checking this step.
+              </p>
+            )}
+        </div>
 
         {/* =========================================================
             STEPS 3–6
         ========================================================= */}
 
         <div className="mt-3 space-y-3">
-          {setupSteps.map(({ Icon, title, desc }, index) => {
-            /*
-             * setupSteps index:
-             *
-             * index 0 = Step 3
-             * index 1 = Step 4
-             * index 2 = Step 5
-             * index 3 = Step 6
-             */
+          {setupSteps.map(
+            ({ Icon, title, desc }, index) => {
+              /*
+               * setupSteps index:
+               *
+               * index 0 = Step 3
+               * index 1 = Step 4
+               * index 2 = Step 5
+               * index 3 = Step 6
+               */
 
-            const stepNumber = index + 3;
+              const stepNumber = index + 3;
 
-            /*
-             * completedSteps:
-             *
-             * [0] = Step 1
-             * [1] = Step 2
-             * [2] = Step 3
-             * [3] = Step 4
-             * [4] = Step 5
-             * [5] = Step 6
-             */
+              /*
+               * completedSteps:
+               *
+               * [0] = Step 1
+               * [1] = Step 2
+               * [2] = Step 3
+               * [3] = Step 4
+               * [4] = Step 5
+               * [5] = Step 6
+               */
 
-            const completed =
-              completedSteps[stepNumber - 1];
+              const completed =
+                completedSteps[stepNumber - 1];
 
-            /*
-             * A step is locked if the immediately
-             * previous step has not been completed.
-             */
-            const locked =
-              !completedSteps[stepNumber - 2];
+              /*
+               * A step is locked if the immediately
+               * previous step has not been completed.
+               */
+              const locked =
+                !completedSteps[stepNumber - 2];
 
-            return (
-              <div
-                key={title}
-                className={`bg-card border border-border rounded-2xl p-4 shadow-card transition-opacity ${
-                  locked ? "opacity-50" : ""
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      completed
-                        ? "bg-success/15 text-success"
-                        : "bg-primary/10 text-primary"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="text-[11px] font-semibold text-muted-foreground">
-                      STEP {stepNumber}
-                    </div>
-
-                    <h3 className="font-semibold text-sm">
-                      {title}
-                    </h3>
-
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {desc}
-                    </p>
-                  </div>
-                </div>
-
-                <label
-                  className={`mt-4 flex items-center gap-3 ${
-                    locked
-                      ? "cursor-not-allowed"
-                      : "cursor-pointer"
+              return (
+                <div
+                  key={title}
+                  className={`bg-card border border-border rounded-2xl p-4 shadow-card transition-opacity ${
+                    locked ? "opacity-50" : ""
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={completed}
-                    disabled={locked}
-                    onChange={() =>
-                      toggleStep(stepNumber - 1)
-                    }
-                    className="w-4 h-4 accent-primary disabled:opacity-50"
-                  />
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        completed
+                          ? "bg-success/15 text-success"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
 
-                  <span className="text-sm font-medium">
-                    I have completed this step
-                  </span>
+                    <div className="flex-1">
+                      <div className="text-[11px] font-semibold text-muted-foreground">
+                        STEP {stepNumber}
+                      </div>
 
-                  {completed && (
-                    <Check
-                      className="w-4 h-4 text-success ml-auto"
-                      strokeWidth={3}
+                      <h3 className="font-semibold text-sm">
+                        {title}
+                      </h3>
+
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <label
+                    className={`mt-4 flex items-center gap-3 ${
+                      locked
+                        ? "cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={completed}
+                      disabled={locked}
+                      onChange={() =>
+                        toggleStep(stepNumber - 1)
+                      }
+                      className="w-4 h-4 accent-primary disabled:opacity-50"
                     />
-                  )}
-                </label>
 
-                {locked && (
-                  <p className="text-[11px] text-muted-foreground mt-2 ml-7">
-                    Complete the previous step first.
-                  </p>
-                )}
-              </div>
-            );
-          })}
+                    <span className="text-sm font-medium">
+                      I have completed this step
+                    </span>
+
+                    {completed && (
+                      <Check
+                        className="w-4 h-4 text-success ml-auto"
+                        strokeWidth={3}
+                      />
+                    )}
+                  </label>
+
+                  {locked && (
+                    <p className="text-[11px] text-muted-foreground mt-2 ml-7">
+                      Complete the previous step first.
+                    </p>
+                  )}
+                </div>
+              );
+            },
+          )}
         </div>
 
         {/* =========================================================
@@ -878,11 +735,12 @@ function ShortcutSetup() {
           </h3>
 
           <p className="text-xs text-muted-foreground mb-4">
-            If you believe your token has been exposed, generate a new
-            one. Your old token will no longer work.
+            If you believe your token has been exposed, generate a
+            new one. Your old token will no longer work.
           </p>
 
           <button
+            type="button"
             onClick={handleGenerateToken}
             disabled={generating}
             className="w-full bg-secondary text-foreground font-semibold rounded-xl py-3 flex items-center justify-center gap-2 disabled:opacity-50"
@@ -899,7 +757,9 @@ function ShortcutSetup() {
           </button>
         </div>
 
-        {/* HELP */}
+        {/* =========================================================
+            HELP
+        ========================================================= */}
 
         <div className="pb-10 pt-6 text-center">
           <p className="text-xs text-muted-foreground">
@@ -915,7 +775,9 @@ function ShortcutSetup() {
         </div>
       </div>
 
-      {/* CONTINUE */}
+      {/* =========================================================
+          CONTINUE
+      ========================================================= */}
 
       <div className="px-6 pb-10 space-y-2">
         <Link

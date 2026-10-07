@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
+  startEmergencyTracking,
   stopEmergencyTracking,
   subscribeToTracking,
   type TrackingState,
@@ -47,24 +48,35 @@ export function EmergencyModal() {
   }, []);
 
   /*
-   * Check whether the user already has an active emergency.
+   * Check whether the logged-in user has an active emergency.
    *
-   * This also means the emergency lock can reappear after
-   * refreshing the page while the emergency is still active.
+   * The modal must never appear for an unauthenticated user.
+   *
+   * If an active emergency is found after a page refresh,
+   * restart GPS tracking for that emergency.
    */
   useEffect(() => {
     let mounted = true;
 
     async function loadActiveEmergency() {
       try {
+        setLoading(true);
+        setError("");
+
         const {
           data: { user },
         } = await supabase.auth.getUser();
 
+        /*
+         * Never show the emergency modal without
+         * a logged-in user.
+         */
         if (!user) {
           if (mounted) {
+            setEmergency(null);
             setLoading(false);
           }
+
           return;
         }
 
@@ -84,16 +96,29 @@ export function EmergencyModal() {
           );
 
           if (mounted) {
-            setError(
-              "Unable to check emergency status.",
-            );
+            setError("Unable to check emergency status.");
           }
 
           return;
         }
 
-        if (mounted) {
-          setEmergency(data);
+        if (!mounted) {
+          return;
+        }
+
+        setEmergency(data);
+
+        /*
+         * If an active emergency exists after a refresh,
+         * restart GPS tracking for that emergency.
+         */
+        if (data) {
+          console.log(
+            "ACTIVE EMERGENCY FOUND — RESTARTING TRACKING:",
+            data.id,
+          );
+
+          startEmergencyTracking(data.id);
         }
       } catch (err) {
         console.error(
@@ -102,9 +127,7 @@ export function EmergencyModal() {
         );
 
         if (mounted) {
-          setError(
-            "Unable to check emergency status.",
-          );
+          setError("Unable to check emergency status.");
         }
       } finally {
         if (mounted) {
@@ -134,6 +157,10 @@ export function EmergencyModal() {
         data: { user },
       } = await supabase.auth.getUser();
 
+      /*
+       * Do not create an emergency subscription when
+       * there is no authenticated user.
+       */
       if (!user) {
         return;
       }
@@ -167,6 +194,12 @@ export function EmergencyModal() {
                 "active"
               ) {
                 setEmergency(newEmergency);
+
+                /*
+                 * Start tracking if an active emergency
+                 * is created while the modal is mounted.
+                 */
+                startEmergencyTracking(newEmergency.id);
               }
             }
 
@@ -179,8 +212,17 @@ export function EmergencyModal() {
                 "active"
               ) {
                 setEmergency(updatedEmergency);
+
+                /*
+                 * Make sure tracking is running for
+                 * the active emergency.
+                 */
+                startEmergencyTracking(
+                  updatedEmergency.id,
+                );
               } else {
                 setEmergency(null);
+                stopEmergencyTracking();
               }
             }
           },
@@ -272,6 +314,10 @@ export function EmergencyModal() {
     }
   }
 
+  /*
+   * Do not render the modal while loading or when
+   * there is no authenticated user's active emergency.
+   */
   if (loading || !emergency) {
     return null;
   }

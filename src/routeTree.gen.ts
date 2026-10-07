@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UpdatePasswordRouteImport } from './routes/update-password'
 import { Route as TriggerRouteImport } from './routes/trigger'
 import { Route as TestShortcutRouteImport } from './routes/test-shortcut'
 import { Route as TestNewShortcutRouteImport } from './routes/test-new-shortcut'
@@ -46,6 +47,11 @@ import { Route as AdminEmergencyLogsAlertIdRouteImport } from './routes/admin.em
 import { Route as AdminUserManagementUserIdViewRouteImport } from './routes/admin.userManagement_.$userId.view'
 import { Route as AdminUserManagementUserIdEditRouteImport } from './routes/admin.userManagement_.$userId.edit'
 
+const UpdatePasswordRoute = UpdatePasswordRouteImport.update({
+  id: '/update-password',
+  path: '/update-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TriggerRoute = TriggerRouteImport.update({
   id: '/trigger',
   path: '/trigger',
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/test-new-shortcut': typeof TestNewShortcutRoute
   '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/test-new-shortcut': typeof TestNewShortcutRoute
   '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/test-new-shortcut': typeof TestNewShortcutRoute
   '/test-shortcut': typeof TestShortcutRoute
   '/trigger': typeof TriggerRoute
+  '/update-password': typeof UpdatePasswordRoute
   '/admin/emergencyLogs': typeof AdminEmergencyLogsRoute
   '/admin/liveMonitoring': typeof AdminLiveMonitoringRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/test-new-shortcut'
     | '/test-shortcut'
     | '/trigger'
+    | '/update-password'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
     | '/admin/settings'
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/test-new-shortcut'
     | '/test-shortcut'
     | '/trigger'
+    | '/update-password'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
     | '/admin/settings'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/test-new-shortcut'
     | '/test-shortcut'
     | '/trigger'
+    | '/update-password'
     | '/admin/emergencyLogs'
     | '/admin/liveMonitoring'
     | '/admin/settings'
@@ -483,6 +495,7 @@ export interface RootRouteChildren {
   TestNewShortcutRoute: typeof TestNewShortcutRoute
   TestShortcutRoute: typeof TestShortcutRoute
   TriggerRoute: typeof TriggerRoute
+  UpdatePasswordRoute: typeof UpdatePasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ContactsAddRoute: typeof ContactsAddRoute
   ProfileEditRoute: typeof ProfileEditRoute
@@ -494,6 +507,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/update-password': {
+      id: '/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof UpdatePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trigger': {
       id: '/trigger'
       path: '/trigger'
@@ -796,6 +816,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestNewShortcutRoute: TestNewShortcutRoute,
   TestShortcutRoute: TestShortcutRoute,
   TriggerRoute: TriggerRoute,
+  UpdatePasswordRoute: UpdatePasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
   ContactsAddRoute: ContactsAddRoute,
   ProfileEditRoute: ProfileEditRoute,
